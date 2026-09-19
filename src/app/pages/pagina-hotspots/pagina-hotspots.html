@@ -1,0 +1,29 @@
+<h2>Mapa de hotspots</h2>
+
+@if (aviso(); as msg) {
+  <app-aviso-api [mensaje]="msg" />
+}
+
+@if (opcionesError(); as msg) {
+  <p class="error" data-error="opciones">{{ msg }}</p>
+}
+
+<app-filtros-hotspots [opciones]="opciones()" (filtroChange)="onFiltroChange($event)" />
+
+@if (error(); as msg) {
+  <p class="error" data-error="puntos">{{ msg }}</p>
+} @else if (demasiadosPuntos(); as msg) {
+  <p class="aviso-demasiados-puntos" data-error="demasiados-puntos">{{ msg }}</p>
+} @else {
+  <p class="total" data-testid="total">
+    @if (cargando()) {
+      Cargando puntos…
+    } @else {
+      {{ total() | number: '1.0-0' }} siniestros encontrados
+    }
+  </p>
+
+  <div class="mapa-envoltorio">
+    <app-mapa-hotspots [puntos]="puntos()" />
+  </div>
+}

@@ -1,0 +1,84 @@
+.cuerpo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  align-items: flex-start;
+}
+
+.columna-mapa {
+  flex: 2 1 480px;
+  min-width: 0;
+}
+
+.mapa-envoltorio {
+  position: relative;
+  /* El Salvador mide ~2.44° de longitud × ~1.3° de latitud a esta latitud
+     (~13.8°N), lo que da una proporción real de ~1.8:1. Con un contenedor
+     casi cuadrado, Leaflet ajusta al ancho y deja franjas vacías enormes
+     arriba/abajo — este aspect-ratio evita ese desperdicio. */
+  aspect-ratio: 1.8 / 1;
+  max-height: 70vh;
+  min-height: 320px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.mapa-envoltorio app-mapa-distritos {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.leyenda-flotante {
+  position: absolute;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  z-index: 1000;
+}
+
+.columna-lateral {
+  flex: 1 1 300px;
+  min-width: 280px;
+  max-height: 65vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.detalle {
+  flex: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.lista-ranking {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.error {
+  padding: var(--space-3);
+  margin: 0 0 var(--space-3);
+  color: var(--color-danger-text);
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+}
+
+.cargando {
+  padding: var(--space-2) var(--space-3);
+  margin: 0 0 var(--space-3);
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}

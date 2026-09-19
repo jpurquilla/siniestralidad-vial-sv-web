@@ -1,0 +1,44 @@
+<div class="controles">
+  <label class="control">
+    <span class="control-etiqueta">Fecha</span>
+    <input
+      type="date"
+      data-testid="fecha"
+      class="control-entrada"
+      [value]="fecha()"
+      (change)="onFechaChange($event)"
+    />
+  </label>
+
+  <label class="control">
+    <span class="control-etiqueta">Franja horaria</span>
+    <select data-testid="franja" class="control-entrada" (change)="onFranjaChange($event)">
+      @for (f of franjas; track f) {
+        <option [value]="f" [selected]="f === franja()">{{ f }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="control control-lluvia">
+    <span class="control-etiqueta">
+      Precipitación mensual simulada
+      <span class="control-valor">
+        @if (prcpMensual() === null) {
+          normal climatológica
+        } @else {
+          {{ prcpMensual() }} mm
+        }
+      </span>
+    </span>
+    <input
+      type="range"
+      data-testid="prcp"
+      class="control-slider"
+      min="0"
+      [max]="prcpMensualMax"
+      step="10"
+      [value]="prcpMensual() ?? 0"
+      (input)="onPrcpChange($event)"
+    />
+  </label>
+</div>

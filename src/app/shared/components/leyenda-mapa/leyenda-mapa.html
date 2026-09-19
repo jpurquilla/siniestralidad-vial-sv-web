@@ -1,0 +1,12 @@
+<ul class="leyenda" aria-label="Leyenda de siniestros esperados">
+  @for (clase of clases(); track clase.etiqueta) {
+    <li data-clase>
+      <span class="swatch" [style.background]="clase.color"></span>
+      <span class="etiqueta">{{ clase.etiqueta }}</span>
+    </li>
+  }
+  <li data-clase>
+    <span class="swatch" [style.background]="colorSinDato()"></span>
+    <span class="etiqueta">Sin dato</span>
+  </li>
+</ul>

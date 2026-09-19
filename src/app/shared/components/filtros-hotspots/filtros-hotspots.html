@@ -1,0 +1,97 @@
+<div class="filtros">
+  <label class="control">
+    <span class="control-etiqueta">Desde</span>
+    <input
+      type="date"
+      data-testid="fecha-inicio"
+      class="control-entrada"
+      (change)="onCampoChange('fechaInicio', $event)"
+    />
+  </label>
+
+  <label class="control">
+    <span class="control-etiqueta">Hasta</span>
+    <input
+      type="date"
+      data-testid="fecha-fin"
+      class="control-entrada"
+      (change)="onCampoChange('fechaFin', $event)"
+    />
+  </label>
+
+  <label class="control">
+    <span class="control-etiqueta">Hora desde</span>
+    <input
+      type="time"
+      data-testid="hora-inicio"
+      class="control-entrada"
+      (change)="onCampoChange('horaInicio', $event)"
+    />
+  </label>
+
+  <label class="control">
+    <span class="control-etiqueta">Hora hasta</span>
+    <input
+      type="time"
+      data-testid="hora-fin"
+      class="control-entrada"
+      (change)="onCampoChange('horaFin', $event)"
+    />
+  </label>
+
+  <label class="control">
+    <span class="control-etiqueta">Tipo de siniestro</span>
+    <select
+      data-testid="tipo-siniestro"
+      class="control-entrada"
+      (change)="onCampoChange('tipoSiniestro', $event)"
+    >
+      <option value="">Todos</option>
+      @for (t of opciones()?.tipos_siniestro; track t) {
+        <option [value]="t">{{ t }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="control">
+    <span class="control-etiqueta">Vehículo responsable</span>
+    <select
+      data-testid="tipo-vehiculo"
+      class="control-entrada"
+      (change)="onCampoChange('tipoVehiculo', $event)"
+    >
+      <option value="">Todos</option>
+      @for (v of opciones()?.tipos_vehiculo; track v) {
+        <option [value]="v">{{ v }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="control">
+    <span class="control-etiqueta">Tipo de causa</span>
+    <select
+      data-testid="factor-causante"
+      class="control-entrada"
+      (change)="onCampoChange('factorCausante', $event)"
+    >
+      <option value="">Todas</option>
+      @for (f of opciones()?.factores_causantes; track f) {
+        <option [value]="f">{{ f }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="control">
+    <span class="control-etiqueta">Departamento</span>
+    <select
+      data-testid="departamento"
+      class="control-entrada"
+      (change)="onCampoChange('departamento', $event)"
+    >
+      <option value="">Todos</option>
+      @for (d of opciones()?.departamentos; track d) {
+        <option [value]="d">{{ d }}</option>
+      }
+    </select>
+  </label>
+</div>

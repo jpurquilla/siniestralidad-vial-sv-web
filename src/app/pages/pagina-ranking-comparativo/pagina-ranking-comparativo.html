@@ -1,0 +1,36 @@
+<h2>Ranking de distritos: observado vs. predicho</h2>
+
+@if (aviso(); as msg) {
+  <app-aviso-api [mensaje]="msg" />
+}
+
+@if (cargando()) {
+  <p class="cargando">Cargando comparación histórica…</p>
+} @else if (error(); as msg) {
+  <p class="error">{{ msg }}</p>
+} @else {
+  <div class="tabla-envoltorio">
+    <table class="tabla-ranking">
+      <thead>
+        <tr>
+          <th>Distrito</th>
+          <th class="num">Observado (2022-2026)</th>
+          <th class="num">Predicho por el modelo</th>
+          <th class="num">Brecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (d of distritos(); track d.distrito_codigo) {
+          <tr>
+            <td>{{ d.nombre }}</td>
+            <td class="num">{{ d.observado | number: '1.1-1' }}</td>
+            <td class="num">{{ d.predicho | number: '1.1-1' }}</td>
+            <td class="num">
+              <span [class]="claseBrecha(d.brecha_pct)">{{ d.brecha_pct | number: '1.0-1' }}%</span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

@@ -1,0 +1,156 @@
+.tarjeta {
+  padding: var(--space-4) var(--space-5);
+}
+
+.tarjeta header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.tarjeta h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.tarjeta h3 {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  margin: var(--space-4) 0 var(--space-2);
+}
+
+.boton-cerrar {
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.12s ease;
+}
+
+.boton-cerrar:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+.valor-esperado {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.valor-etiqueta {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.tercil {
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.tercil-alto {
+  background: #08306b;
+  color: #fff;
+}
+
+.tercil-medio {
+  background: #6baed6;
+  color: #06264a;
+}
+
+.tercil-bajo {
+  background: #c6dbef;
+  color: #06264a;
+}
+
+.serie {
+  list-style: none;
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.serie li {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr 3rem;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 0.8rem;
+}
+
+.serie .franja {
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barra-fondo {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-surface-2);
+  overflow: hidden;
+}
+
+.barra {
+  display: block;
+  height: 100%;
+  background: var(--color-brand);
+  border-radius: 999px;
+}
+
+.serie .valor {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-1) var(--space-3);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+dt {
+  color: var(--color-text-muted);
+}
+
+dd {
+  margin: 0;
+}
+
+.advertencia {
+  font-size: 0.72rem;
+  color: var(--color-warning-text);
+}
+
+.vacio {
+  padding: var(--space-5);
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+  text-align: center;
+}

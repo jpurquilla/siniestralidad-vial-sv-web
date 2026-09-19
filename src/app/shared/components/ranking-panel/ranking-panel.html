@@ -1,0 +1,19 @@
+<app-ranking-grupo
+  titulo="Tercil alto"
+  [items]="alto()"
+  [distritoSeleccionado]="distritoSeleccionado()"
+  (seleccionar)="seleccionar.emit($event)"
+/>
+<app-ranking-grupo
+  titulo="Tercil medio"
+  [items]="medio()"
+  [advertencia]="advertenciaTercilMedio"
+  [distritoSeleccionado]="distritoSeleccionado()"
+  (seleccionar)="seleccionar.emit($event)"
+/>
+<app-ranking-grupo
+  titulo="Tercil bajo"
+  [items]="bajo()"
+  [distritoSeleccionado]="distritoSeleccionado()"
+  (seleccionar)="seleccionar.emit($event)"
+/>

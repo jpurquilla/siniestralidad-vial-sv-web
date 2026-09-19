@@ -1,0 +1,73 @@
+<h2>Impacto de la Ley Cero Tolerancia</h2>
+
+@if (aviso(); as msg) {
+  <app-aviso-api [mensaje]="msg" />
+}
+
+@if (cargando()) {
+  <p class="cargando">Cargando serie histórica…</p>
+} @else if (error(); as msg) {
+  <p class="error">{{ msg }}</p>
+} @else {
+  <p class="meta">
+    Ley vigente desde el <strong>{{ fechaAprobacionLey() }}</strong>
+  </p>
+
+  <section>
+    <h3>Serie anual</h3>
+    <div class="tabla-envoltorio">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Año</th>
+            <th class="num">Siniestros</th>
+            <th class="num">Fallecidos</th>
+            <th class="num">Letalidad (por 100)</th>
+            <th>Cobertura</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of serieAnual(); track a.anio) {
+            <tr>
+              <td>{{ a.anio }}</td>
+              <td class="num">{{ a.siniestros | number: '1.0-0' }}</td>
+              <td class="num">{{ a.fallecidos | number: '1.0-0' }}</td>
+              <td class="num">{{ a.letalidad | number: '1.2-2' }}</td>
+              <td>{{ a.cobertura }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h3>Resumen interanual</h3>
+    <ul class="resumen">
+      @for (r of resumen(); track r.metrica + r.periodo) {
+        <li>
+          <span class="resumen-metrica">{{ r.metrica }} — {{ r.periodo }}</span>
+          @if (r.variacion_interanual_pct !== null) {
+            <span
+              class="resumen-variacion"
+              [class.negativa]="r.variacion_interanual_pct < 0"
+              [class.positiva]="r.variacion_interanual_pct > 0"
+            >
+              {{ r.variacion_interanual_pct > 0 ? '+' : '' }}{{ r.variacion_interanual_pct | number: '1.1-1' }}%
+            </span>
+          }
+          <p class="resumen-lectura">{{ r.lectura }}</p>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section>
+    <h3>Limitaciones</h3>
+    <ul class="limitaciones">
+      @for (limitacion of limitaciones(); track limitacion) {
+        <li>{{ limitacion }}</li>
+      }
+    </ul>
+  </section>
+}

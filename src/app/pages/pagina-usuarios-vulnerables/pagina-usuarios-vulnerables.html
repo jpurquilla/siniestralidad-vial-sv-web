@@ -1,0 +1,61 @@
+<h2>Usuarios vulnerables</h2>
+
+@if (aviso(); as msg) {
+  <app-aviso-api [mensaje]="msg" />
+}
+
+@if (cargando()) {
+  <p class="cargando">Cargando datos de víctimas…</p>
+} @else if (error(); as msg) {
+  <p class="error">{{ msg }}</p>
+} @else {
+  <div class="grupos">
+    <section>
+      <h3>Reparto de fatales y letalidad por tipo de usuario</h3>
+      <div class="tabla-envoltorio">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Tipo de usuario</th>
+              <th class="num">% de siniestros fatales</th>
+              <th class="num">Letalidad por siniestro</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (t of repartoPorTipo(); track t.tipo) {
+              <tr>
+                <td>{{ t.tipo }}</td>
+                <td class="num">{{ t.pct_fatales | number: '1.1-1' }}%</td>
+                <td class="num">{{ t.letalidad_por_siniestro | number: '1.2-2' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h3>Letalidad por rango etario</h3>
+      <div class="tabla-envoltorio">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Rango etario</th>
+              <th class="num">Víctimas</th>
+              <th class="num">Letalidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of letalidadPorEdad(); track e.rango_etario) {
+              <tr>
+                <td>{{ e.rango_etario }}</td>
+                <td class="num">{{ e.victimas | number: '1.0-0' }}</td>
+                <td class="num">{{ e.letalidad | number: '1.2-2' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+}

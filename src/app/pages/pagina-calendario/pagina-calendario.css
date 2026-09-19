@@ -1,0 +1,122 @@
+.encabezado {
+  margin-bottom: var(--space-4);
+}
+
+.kicker {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+h1 {
+  color: var(--color-brand);
+  margin: var(--space-1) 0 var(--space-2);
+  font-size: 1.6rem;
+}
+
+.subtitulo {
+  color: var(--color-text-muted);
+  margin: 0;
+  max-width: 42rem;
+  line-height: 1.5;
+}
+
+.error {
+  padding: var(--space-3);
+  margin: 0 0 var(--space-4);
+  color: var(--color-danger-text);
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-md);
+}
+
+.tarjeta {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-5);
+  max-width: 40rem;
+}
+
+.cabecera-mes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.controles-mes {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.controles-mes button {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  width: 1.8rem;
+  height: 1.8rem;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.etiqueta-mes {
+  font-weight: 700;
+  color: var(--color-text);
+  width: 11rem;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.cargando {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.grilla-semana,
+.grilla-dias {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-2);
+}
+
+.etiqueta-dia {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  padding-bottom: var(--space-2);
+}
+
+.grilla-dias {
+  margin-bottom: var(--space-4);
+}
+
+.celda-dia {
+  height: 3.2rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.celda-dia:disabled {
+  cursor: default;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.celda-dia.vacia {
+  background: transparent !important;
+}
+
+.celda-dia:not(:disabled):hover {
+  outline: 2px solid var(--color-brand);
+  outline-offset: -2px;
+}

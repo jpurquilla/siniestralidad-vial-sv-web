@@ -1,0 +1,76 @@
+<app-aviso-sintetico />
+
+<app-controles-prediccion
+  [fecha]="fecha()"
+  [franja]="franja()"
+  [prcpMensual]="prcpMensual()"
+  (fechaChange)="fecha.set($event)"
+  (franjaChange)="franja.set($event)"
+  (prcpMensualChange)="prcpMensual.set($event)"
+/>
+
+<div class="cuerpo">
+  <section class="columna-mapa">
+    @if (distritosError(); as msg) {
+      <p class="error" data-error="distritos">{{ msg }}</p>
+    }
+    @if (geojsonError(); as msg) {
+      <p class="error" data-error="geojson">{{ msg }}</p>
+    }
+    @if (prediccionesError(); as msg) {
+      <p class="error" data-error="predicciones">{{ msg }}</p>
+    }
+    @if (prediccionesCargando()) {
+      <p class="cargando" data-cargando="predicciones">Actualizando predicciones…</p>
+    }
+
+    <div class="mapa-envoltorio">
+      <app-mapa-distritos
+        [geojson]="geojson()"
+        [datosPorDistrito]="datosPorDistrito()"
+        [escala]="escala()"
+        [distritoSeleccionado]="distritoSeleccionado()"
+        (seleccionar)="seleccionar($event)"
+      />
+      <app-leyenda-mapa
+        class="leyenda-flotante"
+        [clases]="escala().clases"
+        colorSinDato="#bdbdbd"
+      />
+    </div>
+  </section>
+
+  <aside class="columna-lateral">
+    @if (distritoSeleccionado()) {
+      <div class="detalle">
+        @if (detalleError(); as msg) {
+          <p class="error" data-error="detalle">{{ msg }}</p>
+        } @else if (detalleCargando()) {
+          <p class="cargando" data-cargando="detalle">Cargando detalle…</p>
+        } @else {
+          <app-tarjeta-detalle-distrito
+            [distrito]="distritoDetalle()"
+            [valorEsperado]="valorEsperadoDetalle()"
+            [tercil]="tercilDetalle()"
+            [serieHoraria]="serieHorariaDetalle()"
+            (cerrar)="cerrarDetalle()"
+          />
+        }
+      </div>
+    }
+
+    <div class="lista-ranking">
+      @if (rankingError(); as msg) {
+        <p class="error" data-error="ranking">{{ msg }}</p>
+      } @else if (rankingCargando()) {
+        <p class="cargando" data-cargando="ranking">Cargando ranking…</p>
+      } @else {
+        <app-ranking-panel
+          [ranking]="ranking()"
+          [distritoSeleccionado]="distritoSeleccionado()"
+          (seleccionar)="seleccionar($event)"
+        />
+      }
+    </div>
+  </aside>
+</div>

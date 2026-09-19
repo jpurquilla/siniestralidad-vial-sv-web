@@ -1,0 +1,48 @@
+h2 {
+  margin: 0 0 var(--space-4);
+  font-size: 1.3rem;
+}
+
+.mapa-envoltorio {
+  position: relative;
+  aspect-ratio: 1.8 / 1;
+  max-height: 70vh;
+  min-height: 320px;
+  max-width: 60rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.mapa-envoltorio app-mapa-distritos {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.leyenda-flotante {
+  position: absolute;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  z-index: 1000;
+}
+
+.error {
+  padding: var(--space-3);
+  margin: 0 0 var(--space-3);
+  color: var(--color-danger-text);
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  max-width: 60rem;
+}
+
+.cargando {
+  padding: var(--space-2) 0;
+  margin: 0 0 var(--space-3);
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}

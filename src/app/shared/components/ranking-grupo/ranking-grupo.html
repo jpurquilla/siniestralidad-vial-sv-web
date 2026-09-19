@@ -1,0 +1,20 @@
+<section class="grupo">
+  <h3>{{ titulo() }}</h3>
+
+  @if (advertencia(); as msg) {
+    <p class="advertencia">⚠️ {{ msg }}</p>
+  }
+
+  <ul>
+    @for (item of items(); track item.distrito_codigo) {
+      <li
+        data-fila
+        [class.seleccionado]="item.distrito_codigo === distritoSeleccionado()"
+        (click)="seleccionar.emit(item.distrito_codigo)"
+      >
+        <span class="nombre">{{ item.nombre }}</span>
+        <span class="valor">{{ item.siniestros_esperados | number: '1.2-2' }}</span>
+      </li>
+    }
+  </ul>
+</section>

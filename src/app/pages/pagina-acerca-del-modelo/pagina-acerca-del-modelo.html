@@ -1,0 +1,48 @@
+@if (cargando()) {
+  <p class="cargando">Cargando información del modelo…</p>
+} @else if (error(); as msg) {
+  <p class="error">{{ msg }}</p>
+} @else if (info(); as m) {
+  <article class="acerca">
+    <header class="acerca-cabecera">
+      <h2>{{ m.nombre }}</h2>
+      <p class="meta">
+        Entrenado el {{ m.fecha_entrenamiento }} · offset <code>{{ m.offset }}</code>
+      </p>
+    </header>
+
+    <section>
+      <h3>Métricas (NB07)</h3>
+      <div class="tarjetas-metricas">
+        @for (par of metricasOrdenadas(); track par[0]) {
+          <div class="tarjeta-metrica">
+            <span class="metrica-nombre">{{ par[0] }}</span>
+            <span class="metrica-valor">{{ par[1] }}</span>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section>
+      <h3>Variables del modelo</h3>
+      <div class="chips">
+        @for (variable of m.variables; track variable) {
+          <code class="chip">{{ variable }}</code>
+        }
+      </div>
+      <p class="nota-shap">
+        La importancia SHAP de cada variable (NB09 §4) todavía no la expone
+        <code>GET /api/v1/modelo/info</code>; por eso no se muestra acá.
+      </p>
+    </section>
+
+    <section>
+      <h3>Limitaciones</h3>
+      <ul class="limitaciones">
+        @for (limitacion of m.limitaciones; track limitacion) {
+          <li>{{ limitacion }}</li>
+        }
+      </ul>
+    </section>
+  </article>
+}

@@ -1,0 +1,9 @@
+@switch (estadoGeojson()) {
+  @case ('cargando') {
+    <p class="estado-mapa" data-estado="cargando">Cargando geometrías de distritos…</p>
+  }
+  @case ('no_disponible') {
+    <p class="estado-mapa" data-estado="no-disponible">{{ mensajeNoDisponible() }}</p>
+  }
+}
+<div #contenedor class="mapa" [hidden]="estadoGeojson() !== 'ok'"></div>

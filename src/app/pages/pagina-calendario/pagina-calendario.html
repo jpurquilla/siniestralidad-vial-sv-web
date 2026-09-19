@@ -1,0 +1,50 @@
+<app-aviso-sintetico />
+
+<header class="encabezado">
+  <div class="kicker">Predicción</div>
+  <h1>Calendario de riesgo</h1>
+  <p class="subtitulo">
+    Riesgo relativo por día, sumando la predicción real del modelo para los 103 distritos y
+    las 4 franjas. Hacé click en un día para abrir el mapa con esa fecha.
+  </p>
+</header>
+
+@if (error(); as msg) {
+  <p class="error" data-error="calendario">{{ msg }}</p>
+}
+
+<div class="tarjeta">
+  <div class="cabecera-mes">
+    <div class="controles-mes">
+      <button type="button" (click)="mesAnterior()" aria-label="Mes anterior">‹</button>
+      <div class="etiqueta-mes">{{ etiquetaMes() }}</div>
+      <button type="button" (click)="mesSiguiente()" aria-label="Mes siguiente">›</button>
+    </div>
+    @if (cargando()) {
+      <span class="cargando" data-cargando="calendario">Actualizando…</span>
+    }
+  </div>
+
+  <div class="grilla-semana">
+    @for (etiqueta of etiquetasDiaSemana; track $index) {
+      <div class="etiqueta-dia">{{ etiqueta }}</div>
+    }
+  </div>
+
+  <div class="grilla-dias">
+    @for (celda of diasGrilla(); track $index) {
+      <button
+        type="button"
+        class="celda-dia"
+        [class.vacia]="celda.dia === null"
+        [style.background]="celda.color"
+        [disabled]="!celda.seleccionable"
+        (click)="irAlMapa(celda.fecha)"
+      >
+        {{ celda.dia }}
+      </button>
+    }
+  </div>
+
+  <app-leyenda-mapa [clases]="escala().clases" colorSinDato="#bdbdbd" />
+</div>

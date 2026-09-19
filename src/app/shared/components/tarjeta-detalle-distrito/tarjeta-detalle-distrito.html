@@ -1,0 +1,54 @@
+@if (distrito(); as d) {
+  <article class="tarjeta">
+    <header>
+      <h2>{{ d.nombre }}</h2>
+      <button
+        type="button"
+        data-cerrar
+        class="boton-cerrar"
+        (click)="cerrar.emit()"
+        aria-label="Cerrar detalle"
+      >
+        ✕
+      </button>
+    </header>
+
+    <p class="valor-esperado">
+      <strong>{{ valorEsperado() | number: '1.2-2' }}</strong>
+      <span class="valor-etiqueta">siniestros esperados</span>
+      @if (tercil(); as t) {
+        <span class="tercil" [class]="'tercil-' + t">tercil {{ t }}</span>
+      }
+    </p>
+
+    <h3>Perfil horario</h3>
+    <ul class="serie">
+      @for (punto of serieHoraria(); track punto.franja) {
+        <li>
+          <span class="franja">{{ punto.franja }}</span>
+          <span class="barra-fondo">
+            <span class="barra" [style.width.%]="porcentaje(punto.valor)"></span>
+          </span>
+          <span class="valor">{{ punto.valor | number: '1.2-2' }}</span>
+        </li>
+      }
+    </ul>
+
+    <h3>Datos del distrito</h3>
+    <dl>
+      <dt>Departamento</dt>
+      <dd>{{ d.departamento }}</dd>
+      <dt>Población</dt>
+      <dd>
+        {{ d.poblacion | number: '1.0-0' }}
+        @if (d.poblacion_baja) {
+          <span class="advertencia">(población baja: tasa per cápita inestable)</span>
+        }
+      </dd>
+      <dt>% urbano</dt>
+      <dd>{{ d.pct_urbano | percent: '1.0-1' }}</dd>
+    </dl>
+  </article>
+} @else {
+  <p class="vacio">Seleccioná un distrito en el mapa o en el ranking para ver su detalle.</p>
+}

@@ -1,0 +1,25 @@
+<h2>Mapa de brecha: dónde el modelo subestima o sobreestima</h2>
+
+@if (aviso(); as msg) {
+  <app-aviso-api [mensaje]="msg" />
+}
+
+@if (error(); as msg) {
+  <p class="error" data-error="comparacion">{{ msg }}</p>
+}
+@if (geojsonError(); as msg) {
+  <p class="error" data-error="geojson">{{ msg }}</p>
+}
+@if (cargando()) {
+  <p class="cargando">Cargando comparación histórica…</p>
+}
+
+<div class="mapa-envoltorio">
+  <app-mapa-distritos
+    [geojson]="geojson()"
+    [datosPorDistrito]="datosPorDistrito()"
+    [escala]="escala()"
+    [formatoTooltip]="formatoTooltip"
+  />
+  <app-leyenda-mapa class="leyenda-flotante" [clases]="escala().clases" colorSinDato="#bdbdbd" />
+</div>
