@@ -13,32 +13,39 @@
   <label class="control">
     <span class="control-etiqueta">Franja horaria</span>
     <select data-testid="franja" class="control-entrada" (change)="onFranjaChange($event)">
-      @for (f of franjas; track f) {
-        <option [value]="f" [selected]="f === franja()">{{ f }}</option>
+      @for (f of franjas; track f.valor) {
+        <option [value]="f.valor" [selected]="f.valor === franja()">{{ f.etiqueta }}</option>
       }
     </select>
   </label>
 
-  <label class="control control-lluvia">
-    <span class="control-etiqueta">
-      Precipitación mensual simulada
-      <span class="control-valor">
-        @if (prcpMensual() === null) {
-          normal climatológica
-        } @else {
-          {{ prcpMensual() }} mm
-        }
-      </span>
-    </span>
+  <div class="control control-lluvia">
+    <label class="control-etiqueta" for="prcp-mensual">
+      Precipitación mensual
+      <span class="control-valor" data-testid="prcp-texto">{{ prcpTexto() }}</span>
+    </label>
     <input
+      id="prcp-mensual"
       type="range"
       data-testid="prcp"
       class="control-slider"
       min="0"
-      [max]="prcpMensualMax"
+      [max]="prcpMax()"
       step="10"
-      [value]="prcpMensual() ?? 0"
+      [value]="prcpVigente() ?? 0"
       (input)="onPrcpChange($event)"
     />
-  </label>
+    @if (prcpMensual() !== null) {
+      <button type="button" class="enlace" data-testid="prcp-restablecer" (click)="restablecerPrcp()">
+        Volver a la normal climatológica
+      </button>
+    }
+  </div>
 </div>
+
+<p class="nota" data-testid="nota-franja">La predicción varía según la franja horaria.</p>
+@if (usaUltimoParque()) {
+  <p class="nota nota-parque" data-testid="aviso-parque">
+    Para esta fecha se usa el último dato disponible de parque vehicular.
+  </p>
+}

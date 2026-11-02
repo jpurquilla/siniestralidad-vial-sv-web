@@ -5,6 +5,7 @@
       type="date"
       data-testid="fecha-inicio"
       class="control-entrada"
+      [value]="fechaInicio()"
       (change)="onCampoChange('fechaInicio', $event)"
     />
   </label>
@@ -15,6 +16,7 @@
       type="date"
       data-testid="fecha-fin"
       class="control-entrada"
+      [value]="fechaFin()"
       (change)="onCampoChange('fechaFin', $event)"
     />
   </label>

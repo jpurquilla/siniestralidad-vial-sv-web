@@ -29,13 +29,29 @@ describe('ModeloInfoService', () => {
   });
 
   it('trae la información del modelo', () => {
+    const metricas = {
+      MAE: 0.2,
+      RMSE: 0.412055,
+      media_predicha: 0.3,
+      calibracion: 0.966979,
+      spearman_global: 0.9,
+      spearman_tercil_alto: 0.97,
+    };
     const respuestaEsperada: ModeloInfoResponse = {
-      nombre: 'frecuencia_xgboost_offset_v2 (NB07)',
+      nombre: 'Modelo de frecuencia XGBoost',
+      version_modelo: 'frecuencia_xgboost_offset_v3.pkl',
       fecha_entrenamiento: '2026-09-15T00:18:28',
       variables: ['es_lluviosa', 'pct_urbano'],
       offset: 'log_exposicion_v2 + log_tasa_base',
-      metricas: { calibracion: 0.966979, RMSE: 0.412055 },
-      limitaciones: ['El tercil medio ordena mal (Spearman ~0.65).'],
+      metricas,
+      metricas_referencia_nb07: metricas,
+      pruebas_significancia: {
+        t_pareada_mensual: { n_meses: 20, t: 3, p: 0.01, meses_que_mejora: 16 },
+        diebold_mariano: { DM: -3, p: 0.002, dias: 500 },
+      },
+      importancia_shap: [{ variable: 'franja_cod', valor: 0.5 }],
+      calibracion_por_franja: [{ franja: 'Tarde (12-17)', calibracion: 1.02 }],
+      limitaciones: ['El conjunto de datos es sintético.'],
     };
 
     let resultado: ModeloInfoResponse | undefined;

@@ -143,3 +143,27 @@ h3 {
 .cargando {
   color: var(--color-text-muted);
 }
+
+.nota {
+  margin: 0 0 var(--space-3);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.sello-real {
+  display: inline-block;
+  margin-left: var(--space-2);
+  padding: 0.1rem 0.5rem;
+  font-size: 0.68rem;
+  color: #14532d;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  border-radius: var(--radius-sm);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.sin-dato {
+  color: var(--color-text-muted);
+  font-style: italic;
+}

@@ -17,12 +17,38 @@ import {
   DistritoFeature,
   DistritoGeoJsonResultado,
 } from '../../../core/models/distrito-geojson.model';
+import { formatearDecimal } from '../../../core/format/formato';
 import { Tercil } from '../../../core/models/ranking.model';
 
 export interface DatoDistritoMapa {
   nombre: string;
   valorEsperado: number;
   tercil: Tercil | null;
+  /** Valores de apoyo para el tooltip del mapa de brecha. */
+  observado?: number;
+  predicho?: number;
+  /** El valor excede la escala del mapa: se pinta el color extremo y se marca el borde. */
+  fueraDeEscala?: boolean;
+}
+
+export const TEXTO_FUERA_DEL_ALCANCE = 'Fuera del alcance del estudio';
+
+function escaparHtml(texto: string): string {
+  return texto
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function nombreDeFeature(feature: DistritoFeature): string {
+  const p = feature.properties;
+  for (const clave of ['nombre', 'nombre_gadm', 'Dis_min']) {
+    if (typeof p[clave] === 'string' && p[clave]) {
+      return p[clave] as string;
+    }
+  }
+  return 'Distrito';
 }
 
 const CENTRO_EL_SALVADOR: L.LatLngTuple = [13.7942, -88.8965];
@@ -41,7 +67,8 @@ export class MapaDistritos implements AfterViewInit, OnDestroy {
   readonly distritoSeleccionado = input<string | null>(null);
   readonly formatoTooltip = input<(dato: DatoDistritoMapa) => string>(
     (dato) =>
-      `<strong>${dato.nombre}</strong><br>${dato.valorEsperado} siniestros esperados<br>tercil ${dato.tercil ?? 'sin dato'}`,
+      `<strong>${escaparHtml(dato.nombre)}</strong><br>${formatearDecimal(dato.valorEsperado, 2)} siniestros esperados en la franja seleccionada` +
+      (dato.tercil ? `<br>Tercil ${dato.tercil}` : ''),
   );
 
   readonly seleccionar = output<string>();
@@ -132,22 +159,35 @@ export class MapaDistritos implements AfterViewInit, OnDestroy {
             ? codigoDeFeature(feature as unknown as DistritoFeature)
             : undefined;
           const dato = codigo ? datos.get(codigo) : undefined;
+          if (!dato) {
+            // Fuera del alcance del estudio: solo contorno, sin relleno.
+            return {
+              fillColor: 'transparent',
+              fillOpacity: 0,
+              color: '#8a8a8a',
+              weight: 0.8,
+              dashArray: '3 3',
+            };
+          }
           return {
-            fillColor: escala.colorPara(dato?.valorEsperado),
+            fillColor: escala.colorPara(dato.valorEsperado),
             fillOpacity: 0.85,
-            color: '#4d4d4d',
-            weight: 1,
+            color: dato.fueraDeEscala ? '#000000' : '#4d4d4d',
+            weight: dato.fueraDeEscala ? 2.5 : 1,
+            dashArray: dato.fueraDeEscala ? '5 3' : undefined,
           };
         },
         onEachFeature: (feature, capa) => {
-          const codigo = codigoDeFeature(feature as unknown as DistritoFeature);
-          if (!codigo) {
+          const f = feature as unknown as DistritoFeature;
+          const codigo = codigoDeFeature(f);
+          const dato = codigo ? datos.get(codigo) : undefined;
+          if (!codigo || !dato) {
+            capa.bindTooltip(
+              `<strong>${escaparHtml(nombreDeFeature(f))}</strong><br>${TEXTO_FUERA_DEL_ALCANCE}`,
+            );
             return;
           }
-          const dato = datos.get(codigo);
-          if (dato) {
-            capa.bindTooltip(this.formatoTooltip()(dato));
-          }
+          capa.bindTooltip(this.formatoTooltip()(dato));
           capa.on('click', () => this.seleccionar.emit(codigo));
         },
       },
@@ -175,7 +215,10 @@ export class MapaDistritos implements AfterViewInit, OnDestroy {
     this.capaDistritos.eachLayer((capa) => {
       const path = capa as L.Path & { feature?: DistritoFeature };
       const codigo = path.feature ? codigoDeFeature(path.feature) : undefined;
-      path.setStyle({ weight: codigo === codigoSeleccionado ? 3 : 1 });
+      this.capaDistritos?.resetStyle(path);
+      if (codigo !== undefined && codigo === codigoSeleccionado) {
+        path.setStyle({ weight: 3 });
+      }
     });
   }
 }

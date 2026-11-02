@@ -31,7 +31,7 @@ const PUNTOS: SiniestroPuntoOut[] = [
     distrito: 'San Salvador',
     tipo_siniestro: 'Atropello',
     factor_causante: 'Imprudencia del Peatón',
-    tipo_vehiculo: 'Automovil',
+    tipo_vehiculo: 'Automóvil',
     fallecidos: 1,
     lesionados: 0,
   },
@@ -96,6 +96,18 @@ describe('MapaHotspots', () => {
     expect(instancia.capaClusters).toBeDefined();
     expect(instancia.mapa?.hasLayer(instancia.capaClusters!)).toBe(true);
     expect(instancia.capaClusters!.getLayers().length).toBe(PUNTOS.length);
+  });
+
+  it('vuelve a medir el mapa con invalidateSize después de renderizar los puntos', async () => {
+    const espia = vi.spyOn(L.Map.prototype, 'invalidateSize');
+    const fixture = crear();
+    fixture.componentRef.setInput('puntos', PUNTOS);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+
+    expect(espia).toHaveBeenCalled();
+    espia.mockRestore();
   });
 
   it('configura el ícono por defecto con rutas propias, en vez de las rutas relativas rotas de Leaflet bajo Angular', () => {

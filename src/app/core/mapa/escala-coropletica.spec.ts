@@ -69,4 +69,19 @@ describe('crearEscalaCoropletica', () => {
 
     expect(escala.cortes[0]).toBe(20);
   });
+
+  it('con 103 distritos reparte los valores en quintiles (≈20 por clase)', () => {
+    const valores = Array.from({ length: 103 }, (_, i) => (i + 1) ** 1.5);
+    const escala = crearEscalaCoropletica(valores);
+    const porClase = new Map<string, number>();
+    for (const v of valores) {
+      porClase.set(escala.colorPara(v), (porClase.get(escala.colorPara(v)) ?? 0) + 1);
+    }
+
+    expect(porClase.size).toBe(5);
+    for (const cantidad of porClase.values()) {
+      expect(cantidad).toBeGreaterThanOrEqual(20);
+      expect(cantidad).toBeLessThanOrEqual(22);
+    }
+  });
 });

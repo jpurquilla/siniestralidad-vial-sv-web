@@ -43,6 +43,7 @@ describe('ImpactoLeyService', () => {
           lectura: 'la ley coincide con el cambio, no lo causa',
         },
       ],
+      tasas_por_vehiculo: [],
       limitaciones: ['no hay grupo de control'],
     };
 

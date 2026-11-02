@@ -44,6 +44,7 @@ describe('PrediccionesService', () => {
           franja: 'Tarde (12-17)',
           siniestros_esperados: 1.23,
           fuente_prcp: 'normal_climatologica',
+          fuente_parque: 'observado',
         },
       ],
     };

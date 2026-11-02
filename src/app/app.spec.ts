@@ -20,8 +20,7 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Radar Vial SV');
-    expect(compiled.textContent).toContain('Acerca del modelo');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Siniestralidad Vial SV');
     expect(compiled.textContent).toContain('Mapa de riesgo');
     expect(compiled.textContent).toContain('Ley Cero Tolerancia');
   });

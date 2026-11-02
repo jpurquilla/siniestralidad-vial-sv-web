@@ -1,14 +1,12 @@
 <h2>Mapa de hotspots</h2>
 
-@if (aviso(); as msg) {
-  <app-aviso-api [mensaje]="msg" />
-}
+<app-aviso-api [mensaje]="avisoAgrupamientos" />
 
 @if (opcionesError(); as msg) {
   <p class="error" data-error="opciones">{{ msg }}</p>
 }
 
-<app-filtros-hotspots [opciones]="opciones()" (filtroChange)="onFiltroChange($event)" />
+<app-filtros-hotspots [opciones]="opciones()" [filtroInicial]="filtroInicial" (filtroChange)="onFiltroChange($event)" />
 
 @if (error(); as msg) {
   <p class="error" data-error="puntos">{{ msg }}</p>
@@ -19,7 +17,7 @@
     @if (cargando()) {
       Cargando puntos…
     } @else {
-      {{ total() | number: '1.0-0' }} siniestros encontrados
+      {{ total() | conteo }} siniestros encontrados
     }
   </p>
 

@@ -59,3 +59,25 @@
   width: 100%;
   accent-color: var(--color-accent);
 }
+
+.enlace {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--color-brand);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.nota {
+  margin: calc(-1 * var(--space-2)) 0 var(--space-4);
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.nota-parque {
+  margin-top: 0;
+}

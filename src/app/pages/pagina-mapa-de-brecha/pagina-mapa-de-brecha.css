@@ -5,6 +5,10 @@ h2 {
 
 .mapa-envoltorio {
   position: relative;
+  /* Ancho fijado al contenedor: sin esto, aspect-ratio + min-height obligan al
+     mapa a medir min-height × 1.8 y desborda la página en pantallas angostas. */
+  width: 100%;
+  box-sizing: border-box;
   aspect-ratio: 1.8 / 1;
   max-height: 70vh;
   min-height: 320px;
@@ -22,11 +26,10 @@ h2 {
   height: 100%;
 }
 
-.leyenda-flotante {
-  position: absolute;
-  right: var(--space-3);
-  bottom: var(--space-3);
-  z-index: 1000;
+/* La leyenda va FUERA del mapa, debajo: nunca tapa un distrito. */
+.leyenda-debajo {
+  display: block;
+  margin-top: var(--space-3);
 }
 
 .error {
@@ -44,5 +47,13 @@ h2 {
   padding: var(--space-2) 0;
   margin: 0 0 var(--space-3);
   font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.lectura-mapa {
+  max-width: 52rem;
+  margin: 0 0 var(--space-4);
+  font-size: 0.85rem;
+  line-height: 1.45;
   color: var(--color-text-muted);
 }

@@ -52,6 +52,9 @@ describe('PaginaUsuariosVulnerables', () => {
     expect(texto).toContain('Motociclista');
     expect(texto).toContain('0-15');
     expect(texto).toContain('71+');
+    expect(texto).toContain('42.5%');
+    expect(texto).toContain('22.9%');
+    expect(texto).toContain('29.8%');
   });
 
   it('muestra un mensaje de error si la petición falla', () => {

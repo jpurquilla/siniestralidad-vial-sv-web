@@ -15,7 +15,7 @@ function detalleDeValidacion(error: HttpErrorResponse): string | null {
 
 export function mensajeErrorHttp(error: HttpErrorResponse): string {
   if (error.status === 0) {
-    return `No se pudo conectar con la API en ${error.url ?? 'la URL configurada'}. Verificá que esté corriendo y que CORS permita este origen.`;
+    return 'No se pudo conectar con la API. Verificá que esté corriendo y que CORS permita este origen.';
   }
 
   if (error.status === 422) {

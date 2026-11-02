@@ -1,5 +1,13 @@
 <h2>Mapa de brecha: dónde el modelo subestima o sobreestima</h2>
 
+<app-nota-periodo-evaluacion />
+
+<p class="lectura-mapa" data-lectura-mapa>
+  Brecha = diferencia entre lo observado y lo predicho, como porcentaje de lo observado. Rojo: el
+  modelo subestima (predice menos de lo que ocurrió). Azul: el modelo sobreestima. La escala llega
+  hasta ±50%; los distritos más allá se pintan con el color extremo y borde discontinuo.
+</p>
+
 @if (aviso(); as msg) {
   <app-aviso-api [mensaje]="msg" />
 }
@@ -18,8 +26,16 @@
   <app-mapa-distritos
     [geojson]="geojson()"
     [datosPorDistrito]="datosPorDistrito()"
-    [escala]="escala()"
+    [escala]="escala"
     [formatoTooltip]="formatoTooltip"
   />
-  <app-leyenda-mapa class="leyenda-flotante" [clases]="escala().clases" colorSinDato="#bdbdbd" />
 </div>
+<app-leyenda-mapa
+  class="leyenda-debajo"
+  titulo="Leyenda de la brecha entre observado y predicho"
+  [clases]="escala.clases"
+  [extras]="extrasLeyenda"
+  colorSinDato="#bdbdbd"
+  etiquetaSinDato="Fuera del alcance del estudio"
+  [sinDatoSoloContorno]="true"
+/>

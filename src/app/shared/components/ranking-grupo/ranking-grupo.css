@@ -70,3 +70,9 @@ li.seleccionado {
 li.seleccionado .valor {
   color: inherit;
 }
+
+.dato-spearman {
+  margin: 0 var(--space-4) var(--space-2);
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+}

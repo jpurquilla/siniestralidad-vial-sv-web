@@ -1,15 +1,19 @@
-import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 
 import { mensajeErrorHttp } from '../../core/errores/mensaje-error-http';
-import { ImpactoAnualOut, ImpactoResumenItemOut } from '../../core/models/impacto-ley.model';
+import { ConteoPipe, Decimal2Pipe, FechaLargaPipe, PorcentajePipe } from '../../core/format/formato.pipes';
+import {
+  ImpactoAnualOut,
+  ImpactoResumenItemOut,
+  TasaPorVehiculoOut,
+} from '../../core/models/impacto-ley.model';
 import { ImpactoLeyService } from '../../core/services/impacto-ley.service';
 import { AvisoApi } from '../../shared/components/aviso-api/aviso-api';
 
 @Component({
   selector: 'app-pagina-ley-cero-tolerancia',
-  imports: [AvisoApi, DecimalPipe],
+  imports: [AvisoApi, ConteoPipe, Decimal2Pipe, FechaLargaPipe, PorcentajePipe],
   templateUrl: './pagina-ley-cero-tolerancia.html',
   styleUrl: './pagina-ley-cero-tolerancia.css',
 })
@@ -22,7 +26,7 @@ export class PaginaLeyCeroTolerancia {
   protected readonly fechaAprobacionLey = signal<string | null>(null);
   protected readonly serieAnual = signal<ImpactoAnualOut[]>([]);
   protected readonly resumen = signal<ImpactoResumenItemOut[]>([]);
-  protected readonly limitaciones = signal<string[]>([]);
+  protected readonly tasasPorVehiculo = signal<TasaPorVehiculoOut[]>([]);
 
   constructor() {
     this.impactoLeyService.obtener().subscribe({
@@ -32,7 +36,7 @@ export class PaginaLeyCeroTolerancia {
         this.fechaAprobacionLey.set(respuesta.fecha_aprobacion_ley);
         this.serieAnual.set(respuesta.serie_anual);
         this.resumen.set(respuesta.resumen);
-        this.limitaciones.set(respuesta.limitaciones);
+        this.tasasPorVehiculo.set(respuesta.tasas_por_vehiculo ?? []);
       },
       error: (error: HttpErrorResponse) => {
         this.cargando.set(false);

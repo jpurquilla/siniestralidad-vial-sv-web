@@ -2,6 +2,8 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, effect, input, viewChi
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
 
+import { formatearFechaLarga } from '../../../core/format/formato';
+import { etiquetaFranja } from '../../../core/modelo/etiquetas-modelo';
 import { SiniestroPuntoOut } from '../../../core/models/siniestro-punto.model';
 
 const CENTRO_EL_SALVADOR: L.LatLngTuple = [13.7942, -88.8965];
@@ -25,9 +27,9 @@ L.Icon.Default.mergeOptions({
 /**
  * Mapa base real (OpenStreetMap) + clustering de marcadores, réplica de
  * observatoriovial.fonat.gob.sv — la única pantalla de la app con puntos en
- * vez de coropletas, autorizada explícitamente para esto (ver aviso de
- * NB10 que acompaña esta pantalla: no hay estructura espacial real
- * verificada por debajo de ~1 km).
+ * vez de coropletas, autorizada explícitamente para esto (el aviso que la
+ * acompaña aclara que los agrupamientos no son concentraciones viales
+ * verificadas).
  */
 @Component({
   selector: 'app-mapa-hotspots',
@@ -42,6 +44,7 @@ export class MapaHotspots implements AfterViewInit, OnDestroy {
 
   private mapa?: L.Map;
   private capaClusters?: L.MarkerClusterGroup;
+  private observador?: ResizeObserver;
 
   constructor() {
     effect(() => {
@@ -81,10 +84,19 @@ export class MapaHotspots implements AfterViewInit, OnDestroy {
       // Silenciado a propósito: ver comentario arriba.
     }
 
+    // Las teselas solo llenan el contenedor si Leaflet conoce su tamaño real:
+    // se vuelve a medir cuando el layout termina y cada vez que el contenedor
+    // cambia de tamaño (ventana, menú lateral, aspect-ratio del envoltorio).
+    if (typeof ResizeObserver !== 'undefined') {
+      this.observador = new ResizeObserver(() => this.mapa?.invalidateSize());
+      this.observador.observe(this.contenedor().nativeElement);
+    }
+
     this.pintarMarcadoresCuandoElContenedorSeVea(this.puntos());
   }
 
   ngOnDestroy(): void {
+    this.observador?.disconnect();
     this.mapa?.remove();
   }
 
@@ -110,7 +122,7 @@ export class MapaHotspots implements AfterViewInit, OnDestroy {
       const marcador = L.marker([p.latitud, p.longitud]);
       marcador.bindPopup(
         `<strong>${p.tipo_siniestro}</strong><br>` +
-          `${p.fecha} · ${p.hora} (${p.franja})<br>` +
+          `${formatearFechaLarga(p.fecha)} · ${p.hora} (${etiquetaFranja(p.franja)})<br>` +
           `${p.distrito}, ${p.departamento}<br>` +
           `Vehículo: ${p.tipo_vehiculo} · Causa: ${p.factor_causante}<br>` +
           `Fallecidos: ${p.fallecidos} · Lesionados: ${p.lesionados}`,

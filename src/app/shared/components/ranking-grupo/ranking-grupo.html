@@ -5,6 +5,13 @@
     <p class="advertencia">⚠️ {{ msg }}</p>
   }
 
+  @if (spearman() !== null) {
+    <p class="dato-spearman" data-spearman>
+      Correlación de orden (Spearman) en el periodo de evaluación:
+      {{ spearman() | number: '1.2-2' }}
+    </p>
+  }
+
   <ul>
     @for (item of items(); track item.distrito_codigo) {
       <li

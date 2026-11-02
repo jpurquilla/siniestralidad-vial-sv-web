@@ -1,12 +1,22 @@
-<ul class="leyenda" aria-label="Leyenda de siniestros esperados">
+<ul class="leyenda" [attr.aria-label]="titulo()">
   @for (clase of clases(); track clase.etiqueta) {
     <li data-clase>
       <span class="swatch" [style.background]="clase.color"></span>
       <span class="etiqueta">{{ clase.etiqueta }}</span>
     </li>
   }
-  <li data-clase>
-    <span class="swatch" [style.background]="colorSinDato()"></span>
-    <span class="etiqueta">Sin dato</span>
+  @for (extra of extras(); track extra.etiqueta) {
+    <li data-clase data-extra>
+      <span class="swatch swatch-borde" [style.background]="extra.color"></span>
+      <span class="etiqueta">{{ extra.etiqueta }}</span>
+    </li>
+  }
+  <li data-clase data-sin-dato>
+    <span
+      class="swatch"
+      [class.swatch-contorno]="sinDatoSoloContorno()"
+      [style.background]="sinDatoSoloContorno() ? 'transparent' : colorSinDato()"
+    ></span>
+    <span class="etiqueta">{{ etiquetaSinDato() }}</span>
   </li>
 </ul>

@@ -25,11 +25,6 @@ h3 {
   color: var(--color-text-muted);
 }
 
-.nota-corte code {
-  background: var(--color-surface-2);
-  padding: 0.05rem 0.35rem;
-  border-radius: var(--radius-sm);
-}
 
 .tarjetas {
   display: grid;
@@ -90,4 +85,61 @@ h3 {
 
 .cargando {
   color: var(--color-text-muted);
+}
+
+.definicion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  max-width: 52rem;
+  margin: 0 0 var(--space-5);
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
+
+.clave {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.punto {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+}
+
+.punto-sobreestima,
+.tarjeta.lectura-sobreestima {
+  --color-lectura: #2166ac;
+}
+
+.punto-subestima,
+.tarjeta.lectura-subestima {
+  --color-lectura: #b2182b;
+}
+
+.tarjeta.lectura-exacta {
+  --color-lectura: #4d7c4d;
+}
+
+.punto {
+  background: var(--color-lectura);
+}
+
+.tarjeta {
+  border-left: 4px solid var(--color-lectura, var(--color-border));
+}
+
+.lectura {
+  align-self: flex-start;
+  margin-top: var(--space-1);
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-lectura);
+  border: 1px solid var(--color-lectura);
+  border-radius: var(--radius-sm);
 }

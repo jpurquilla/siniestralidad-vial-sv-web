@@ -15,17 +15,17 @@
 
     <p class="valor-esperado">
       <strong>{{ valorEsperado() | number: '1.2-2' }}</strong>
-      <span class="valor-etiqueta">siniestros esperados</span>
+      <span class="valor-etiqueta">siniestros esperados en la franja seleccionada</span>
       @if (tercil(); as t) {
-        <span class="tercil" [class]="'tercil-' + t">tercil {{ t }}</span>
+        <span class="tercil" [class]="'tercil-' + t">Tercil {{ t }}</span>
       }
     </p>
 
-    <h3>Perfil horario</h3>
+    <h3>Siniestros esperados por franja horaria</h3>
     <ul class="serie">
       @for (punto of serieHoraria(); track punto.franja) {
         <li>
-          <span class="franja">{{ punto.franja }}</span>
+          <span class="franja">{{ etiquetaFranja(punto.franja) }}</span>
           <span class="barra-fondo">
             <span class="barra" [style.width.%]="porcentaje(punto.valor)"></span>
           </span>
@@ -40,13 +40,13 @@
       <dd>{{ d.departamento }}</dd>
       <dt>Población</dt>
       <dd>
-        {{ d.poblacion | number: '1.0-0' }}
+        {{ d.poblacion | conteo }}
         @if (d.poblacion_baja) {
           <span class="advertencia">(población baja: tasa per cápita inestable)</span>
         }
       </dd>
       <dt>% urbano</dt>
-      <dd>{{ d.pct_urbano | percent: '1.0-1' }}</dd>
+      <dd>{{ d.pct_urbano | porcentaje: { esFraccion: true } }}</dd>
     </dl>
   </article>
 } @else {

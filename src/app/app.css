@@ -12,6 +12,12 @@
   padding: var(--space-5) var(--space-4);
   background: var(--color-surface);
   border-right: 1px solid var(--color-border);
+  /* Menú fijo: se queda visible al desplazar el contenido. */
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .kicker {
@@ -111,6 +117,10 @@
   }
 
   .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 1100;
+    height: auto;
     width: 100%;
     flex-direction: row;
     align-items: center;

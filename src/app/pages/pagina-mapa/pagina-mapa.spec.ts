@@ -248,4 +248,110 @@ describe('PaginaMapa', () => {
 
     expect(seleccion.distritoSeleccionado()).toBeNull();
   });
+
+  function celda(codigo: string, franja: string, valor: number, extras: object = {}): object {
+    return {
+      distrito_codigo: codigo,
+      fecha: '2024-06-15',
+      franja,
+      siniestros_esperados: valor,
+      fuente_prcp: 'normal_climatologica',
+      fuente_parque: 'observado',
+      ...extras,
+    };
+  }
+
+  it('al cambiar la franja vuelve a pedir la predicción y el ranking con la franja elegida', async () => {
+    flushArranqueConDistritos();
+    fixture.detectChanges();
+    await esperar(300);
+    httpMock
+      .expectOne(`${API}/api/v1/predicciones`)
+      .flush({ aviso: '', predicciones: [celda('01-01', 'Tarde (12-17)', 5)] });
+    fixture.detectChanges();
+
+    const select = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="franja"]',
+    ) as HTMLSelectElement;
+    select.value = 'Noche (18-23)';
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+    await esperar(300);
+
+    const prediccion = httpMock.expectOne(`${API}/api/v1/predicciones`);
+    expect(prediccion.request.body.franjas).toEqual(['Noche (18-23)']);
+    prediccion.flush({ aviso: '', predicciones: [celda('01-01', 'Noche (18-23)', 9)] });
+    const ranking = httpMock.expectOne((req) => req.url === `${API}/api/v1/ranking`);
+    expect(ranking.request.urlWithParams).toContain('Noche');
+    ranking.flush(RANKING_DE_PRUEBA);
+    fixture.detectChanges();
+
+    const mapa = fixture.debugElement.query(By.directive(MapaDistritos))
+      .componentInstance as MapaDistritos;
+    expect(mapa.datosPorDistrito().get('01-01')?.valorEsperado).toBe(9);
+  });
+
+  it('avisa con discreción cuando la fecha usa el último parque vehicular disponible', async () => {
+    flushArranqueConDistritos();
+    fixture.detectChanges();
+    await esperar(300);
+    httpMock.expectOne(`${API}/api/v1/predicciones`).flush({
+      aviso: '',
+      predicciones: [celda('01-01', 'Tarde (12-17)', 5, { fuente_parque: 'ultimo_disponible' })],
+    });
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'Para esta fecha se usa el último dato disponible de parque vehicular.',
+    );
+  });
+
+  it('inicia el deslizador de lluvia en la normal climatológica que informa la API', async () => {
+    flushArranqueConDistritos();
+    fixture.detectChanges();
+    await esperar(300);
+    httpMock.expectOne(`${API}/api/v1/predicciones`).flush({
+      aviso: '',
+      predicciones: [
+        celda('01-01', 'Tarde (12-17)', 5, { prcp_mensual: 180 }),
+        celda('02-02', 'Tarde (12-17)', 1, { prcp_mensual: 220 }),
+      ],
+    });
+    fixture.detectChanges();
+
+    const texto = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="prcp-texto"]',
+    )?.textContent;
+    expect(texto).toContain('200 mm');
+  });
+
+  it('al hacer clic en un distrito del mapa se abre la tarjeta con nombre, población, % urbano y predicción por franja', async () => {
+    flushArranqueConDistritos();
+    fixture.detectChanges();
+
+    const mapa = fixture.debugElement.query(By.directive(MapaDistritos))
+      .componentInstance as MapaDistritos;
+    mapa.seleccionar.emit('01-01');
+    fixture.detectChanges();
+    await esperar(300);
+
+    for (const peticion of httpMock.match(`${API}/api/v1/predicciones`)) {
+      const franjas = peticion.request.body.franjas as string[];
+      peticion.flush({
+        aviso: '',
+        predicciones: franjas.map((f, i) => celda('01-01', f, i + 1)),
+      });
+    }
+    fixture.detectChanges();
+
+    const tarjeta = (fixture.nativeElement as HTMLElement).querySelector(
+      'app-tarjeta-detalle-distrito',
+    );
+    const texto = tarjeta?.textContent ?? '';
+    expect(texto).toContain('Distrito uno');
+    expect(texto).toContain('1,000');
+    expect(texto).toContain('90.0%');
+    expect(texto).toContain('Mañana (06-11)');
+    expect(texto).toContain('Noche (18-23)');
+  });
 });

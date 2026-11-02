@@ -1,3 +1,4 @@
+import { formatearDecimal } from '../format/formato';
 import { ClaseLeyenda } from '../../shared/components/leyenda-mapa/clase-leyenda.model';
 
 /**
@@ -10,7 +11,7 @@ const COLORES_SECUENCIALES = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#0851
 export const COLOR_SIN_DATO = '#bdbdbd';
 
 export interface EscalaCoropletica {
-  /** Los 4 cortes internos que delimitan las 5 clases (cuantiles 20/40/60/80). */
+  /** Los 4 cortes internos que delimitan las 5 clases (cuantiles 20/40/60/80 de los valores recibidos: los 103 distritos). */
   cortes: number[];
   /** Las 5 clases de la leyenda, en orden de menor a mayor riesgo. */
   clases: ClaseLeyenda[];
@@ -35,10 +36,6 @@ function cuantil(valoresOrdenados: number[], p: number): number {
   );
 }
 
-function formatearValor(valor: number): string {
-  return valor.toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
 export function crearEscalaCoropletica(valores: number[]): EscalaCoropletica {
   if (valores.length === 0) {
     return { cortes: [], clases: [], colorPara: () => COLOR_SIN_DATO };
@@ -52,7 +49,7 @@ export function crearEscalaCoropletica(valores: number[]): EscalaCoropletica {
 
   const clases: ClaseLeyenda[] = COLORES_SECUENCIALES.map((color, i) => ({
     color,
-    etiqueta: `${formatearValor(limites[i])} – ${formatearValor(limites[i + 1])}`,
+    etiqueta: `${formatearDecimal(limites[i], 2)} – ${formatearDecimal(limites[i + 1], 2)}`,
   }));
 
   function colorPara(valor: number | null | undefined): string {

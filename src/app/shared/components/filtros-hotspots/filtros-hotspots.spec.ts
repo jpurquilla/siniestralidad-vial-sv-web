@@ -5,7 +5,7 @@ import { OpcionesFiltroSiniestrosResponse } from '../../../core/models/siniestro
 
 const OPCIONES: OpcionesFiltroSiniestrosResponse = {
   tipos_siniestro: ['Volcamiento', 'Atropello'],
-  tipos_vehiculo: ['Motocicleta', 'Automovil'],
+  tipos_vehiculo: ['Motocicleta', 'Automóvil'],
   factores_causantes: ['Velocidad Excesiva'],
   departamentos: ['San Salvador', 'Santa Ana'],
 };

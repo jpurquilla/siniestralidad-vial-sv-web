@@ -43,11 +43,34 @@ describe('RankingPanel', () => {
     expect(texto).toContain('Distrito bajo');
   });
 
-  it('solo el grupo del tercil medio muestra la advertencia de fiabilidad', () => {
+  it('muestra el aviso de orden aproximado y no califica ningún tercil de poco confiable', () => {
     const fixture = crear();
-    const advertencias = (fixture.nativeElement as HTMLElement).querySelectorAll('.advertencia');
-    expect(advertencias.length).toBe(1);
-    expect(advertencias[0].textContent ?? '').toContain('poco confiable');
+    const el = fixture.nativeElement as HTMLElement;
+    const texto = el.textContent ?? '';
+    expect(el.querySelector('[data-aviso-orden]')?.textContent).toContain(
+      'El orden dentro de cada tercil es aproximado: los distritos de un mismo grupo tienen valores esperados parecidos y su posición relativa puede variar.',
+    );
+    expect(el.querySelectorAll('.advertencia').length).toBe(0);
+    expect(texto.toLowerCase()).not.toContain('poco confiable');
+    expect(texto.toLowerCase()).not.toContain('ordena mal');
+  });
+
+  it('muestra el Spearman de cada tercil como dato descriptivo', () => {
+    const fixture = crear();
+    const valores = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('[data-spearman]'),
+    ).map((e) => e.textContent ?? '');
+    expect(valores.length).toBe(3);
+    expect(valores[0]).toContain('0.98');
+    expect(valores[1]).toContain('0.65');
+    expect(valores[2]).toContain('0.80');
+  });
+
+  it('aclara que el valor es siniestros esperados en la franja seleccionada', () => {
+    const fixture = crear();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'Siniestros esperados en la franja seleccionada',
+    );
   });
 
   it('reemite seleccionar con el código del distrito clickeado, sin importar el grupo', () => {

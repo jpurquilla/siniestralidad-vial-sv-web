@@ -4,6 +4,8 @@
   [fecha]="fecha()"
   [franja]="franja()"
   [prcpMensual]="prcpMensual()"
+  [prcpNormal]="prcpNormal()"
+  [usaUltimoParque]="usaUltimoParque()"
   (fechaChange)="fecha.set($event)"
   (franjaChange)="franja.set($event)"
   (prcpMensualChange)="prcpMensual.set($event)"
@@ -24,6 +26,8 @@
       <p class="cargando" data-cargando="predicciones">Actualizando predicciones…</p>
     }
 
+    <p class="unidad" data-unidad>Siniestros esperados en la franja seleccionada, por distrito.</p>
+
     <div class="mapa-envoltorio">
       <app-mapa-distritos
         [geojson]="geojson()"
@@ -32,12 +36,14 @@
         [distritoSeleccionado]="distritoSeleccionado()"
         (seleccionar)="seleccionar($event)"
       />
-      <app-leyenda-mapa
-        class="leyenda-flotante"
-        [clases]="escala().clases"
-        colorSinDato="#bdbdbd"
-      />
     </div>
+    <app-leyenda-mapa
+      class="leyenda-debajo"
+      [clases]="escala().clases"
+      colorSinDato="#bdbdbd"
+      etiquetaSinDato="Fuera del alcance del estudio"
+      [sinDatoSoloContorno]="true"
+    />
   </section>
 
   <aside class="columna-lateral">

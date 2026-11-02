@@ -2,6 +2,9 @@ import { Franja } from './franja.model';
 
 export type FuentePrecipitacion = 'observada' | 'normal_climatologica';
 
+/** 'ultimo_disponible': la fecha no tiene dato de parque vehicular y se usa el más reciente. */
+export type FuenteParque = 'observado' | 'ultimo_disponible';
+
 export interface PrediccionRequest {
   distritos: string[];
   fecha_inicio: string;
@@ -17,6 +20,9 @@ export interface PrediccionCeldaOut {
   franja: Franja;
   siniestros_esperados: number;
   fuente_prcp: FuentePrecipitacion;
+  fuente_parque: FuenteParque;
+  /** mm de precipitación mensual usados en la celda (la normal climatológica si no hubo escenario). Opcional: solo si la API lo entrega. */
+  prcp_mensual?: number | null;
 }
 
 export interface PrediccionResponse {

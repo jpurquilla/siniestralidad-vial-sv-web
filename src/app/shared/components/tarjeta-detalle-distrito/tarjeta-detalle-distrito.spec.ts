@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { TarjetaDetalleDistrito } from './tarjeta-detalle-distrito';
 import { DistritoOut } from '../../../core/models/distrito.model';
+import { etiquetaFranja } from '../../../core/modelo/etiquetas-modelo';
 import { Franja } from '../../../core/models/franja.model';
 
 const distrito: DistritoOut = {
@@ -45,8 +46,12 @@ describe('TarjetaDetalleDistrito', () => {
     expect(texto).toContain('San Salvador Centro');
     expect(texto).toContain('4.2');
     for (const punto of serieHoraria) {
-      expect(texto).toContain(punto.franja);
+      expect(texto).toContain(etiquetaFranja(punto.franja));
     }
+    expect(texto).toContain('Mañana (06-11)');
+    expect(texto).toContain('150,000');
+    expect(texto).toContain('97.0%');
+    expect(texto).toContain('siniestros esperados en la franja seleccionada');
   });
 
   it('emite cerrar al hacer click en el botón de cerrar', () => {

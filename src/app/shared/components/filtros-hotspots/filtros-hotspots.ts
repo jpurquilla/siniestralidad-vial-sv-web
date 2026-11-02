@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, input, linkedSignal, output, signal } from '@angular/core';
 
 import { FiltroSiniestros, OpcionesFiltroSiniestrosResponse } from '../../../core/models/siniestro-punto.model';
 
@@ -10,10 +10,12 @@ import { FiltroSiniestros, OpcionesFiltroSiniestrosResponse } from '../../../cor
 })
 export class FiltrosHotspots {
   readonly opciones = input<OpcionesFiltroSiniestrosResponse | null>(null);
+  /** Valores con los que arrancan los campos (por ejemplo, el año por defecto). */
+  readonly filtroInicial = input<FiltroSiniestros>({});
   readonly filtroChange = output<FiltroSiniestros>();
 
-  protected readonly fechaInicio = signal('');
-  protected readonly fechaFin = signal('');
+  protected readonly fechaInicio = linkedSignal(() => this.filtroInicial().fechaInicio ?? '');
+  protected readonly fechaFin = linkedSignal(() => this.filtroInicial().fechaFin ?? '');
   protected readonly tipoSiniestro = signal('');
   protected readonly tipoVehiculo = signal('');
   protected readonly factorCausante = signal('');

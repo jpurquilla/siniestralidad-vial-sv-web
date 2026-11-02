@@ -6,9 +6,8 @@ export interface RankingItemOut {
   siniestros_esperados: number;
   tercil: Tercil;
   /**
-   * Spearman de ordenamiento de ESE tercil en la evaluación de NB07
-   * (test 2025-2026). El tercil medio ordena mal (~0.65): es una limitación
-   * documentada del modelo, no un defecto de este endpoint.
+   * Spearman de ordenamiento de ESE tercil en el periodo de evaluación
+   * (2025-2026). Dato descriptivo: el orden dentro de un tercil es aproximado.
    */
   confiabilidad_spearman: number;
 }

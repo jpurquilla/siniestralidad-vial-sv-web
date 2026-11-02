@@ -66,6 +66,9 @@ export class PaginaMapa {
   protected readonly geojsonError = signal<string | null>(null);
 
   protected readonly valoresPorDistrito = signal<Map<string, number>>(new Map());
+  /** Normal climatológica (mm) por distrito para el mes consultado, según la API. */
+  protected readonly prcpNormalPorDistrito = signal<Map<string, number>>(new Map());
+  protected readonly usaUltimoParque = signal(false);
   protected readonly prediccionesCargando = signal(false);
   protected readonly prediccionesError = signal<string | null>(null);
 
@@ -76,6 +79,21 @@ export class PaginaMapa {
   protected readonly serieHorariaDetalle = signal<PuntoSerieHoraria[]>([]);
   protected readonly detalleCargando = signal(false);
   protected readonly detalleError = signal<string | null>(null);
+
+  /** Normal climatológica del distrito seleccionado o, sin selección, la mediana de los distritos. */
+  protected readonly prcpNormal = computed<number | null>(() => {
+    const normales = this.prcpNormalPorDistrito();
+    const codigo = this.distritoSeleccionado();
+    if (codigo && normales.has(codigo)) {
+      return normales.get(codigo) ?? null;
+    }
+    const ordenados = [...normales.values()].sort((a, b) => a - b);
+    if (ordenados.length === 0) {
+      return null;
+    }
+    const medio = Math.floor(ordenados.length / 2);
+    return ordenados.length % 2 === 1 ? ordenados[medio] : (ordenados[medio - 1] + ordenados[medio]) / 2;
+  });
 
   protected readonly escala = computed(() =>
     crearEscalaCoropletica([...this.valoresPorDistrito().values()]),
@@ -166,6 +184,17 @@ export class PaginaMapa {
           this.valoresPorDistrito.set(
             new Map(respuesta.predicciones.map((p) => [p.distrito_codigo, p.siniestros_esperados])),
           );
+          this.usaUltimoParque.set(
+            respuesta.predicciones.some((p) => p.fuente_parque === 'ultimo_disponible'),
+          );
+          const normales = respuesta.predicciones.filter(
+            (p) => p.fuente_prcp === 'normal_climatologica' && typeof p.prcp_mensual === 'number',
+          );
+          if (normales.length > 0) {
+            this.prcpNormalPorDistrito.set(
+              new Map(normales.map((p) => [p.distrito_codigo, p.prcp_mensual as number])),
+            );
+          }
         }
       });
 

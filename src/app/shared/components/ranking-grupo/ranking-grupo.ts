@@ -11,6 +11,8 @@ import { RankingItemOut } from '../../../core/models/ranking.model';
 export class RankingGrupo {
   readonly titulo = input.required<string>();
   readonly items = input.required<RankingItemOut[]>();
+  /** Spearman del tercil en el periodo de evaluación; dato descriptivo. */
+  readonly spearman = input<number | null>(null);
   readonly advertencia = input<string | null>(null);
   readonly distritoSeleccionado = input<string | null>(null);
 
