@@ -3,31 +3,31 @@
 <app-controles-prediccion
   [fecha]="fecha()"
   [franja]="franja()"
-  [prcpMensual]="prcpMensual()"
-  [prcpNormal]="prcpNormal()"
+  [escenarioPct]="escenarioPct()"
   [usaUltimoParque]="usaUltimoParque()"
+  [variacionTotalPct]="variacionTotalPct()"
   (fechaChange)="fecha.set($event)"
   (franjaChange)="franja.set($event)"
-  (prcpMensualChange)="prcpMensual.set($event)"
+  (escenarioPctChange)="escenarioPct.set($event)"
 />
+
+@if (distritosError(); as msg) {
+  <p class="error" data-error="distritos">{{ msg }}</p>
+}
+@if (geojsonError(); as msg) {
+  <p class="error" data-error="geojson">{{ msg }}</p>
+}
+@if (prediccionesError(); as msg) {
+  <p class="error" data-error="predicciones">{{ msg }}</p>
+}
+@if (prediccionesCargando()) {
+  <p class="cargando" data-cargando="predicciones">Actualizando predicciones…</p>
+}
+
+<p class="unidad" data-unidad>Siniestros esperados en la franja seleccionada, por distrito.</p>
 
 <div class="cuerpo">
   <section class="columna-mapa">
-    @if (distritosError(); as msg) {
-      <p class="error" data-error="distritos">{{ msg }}</p>
-    }
-    @if (geojsonError(); as msg) {
-      <p class="error" data-error="geojson">{{ msg }}</p>
-    }
-    @if (prediccionesError(); as msg) {
-      <p class="error" data-error="predicciones">{{ msg }}</p>
-    }
-    @if (prediccionesCargando()) {
-      <p class="cargando" data-cargando="predicciones">Actualizando predicciones…</p>
-    }
-
-    <p class="unidad" data-unidad>Siniestros esperados en la franja seleccionada, por distrito.</p>
-
     <div class="mapa-envoltorio">
       <app-mapa-distritos
         [geojson]="geojson()"
@@ -47,36 +47,89 @@
   </section>
 
   <aside class="columna-lateral">
-    @if (distritoSeleccionado()) {
-      <div class="detalle">
-        @if (detalleError(); as msg) {
-          <p class="error" data-error="detalle">{{ msg }}</p>
-        } @else if (detalleCargando()) {
-          <p class="cargando" data-cargando="detalle">Cargando detalle…</p>
+    <div class="panel-lateral">
+      <app-buscador-distrito [opciones]="opcionesBusqueda()" (elegir)="elegirDeBuscador($event)" />
+      <div class="pestanas" role="tablist" aria-label="Panel lateral">
+        <button
+          type="button"
+          role="tab"
+          class="pestana"
+          data-pestana="tabla"
+          id="pestana-tabla"
+          aria-controls="panel-tabla"
+          [attr.aria-selected]="pestanaActiva() === 'tabla'"
+          [class.activa]="pestanaActiva() === 'tabla'"
+          (click)="pestana.set('tabla')"
+        >
+          Distritos de mayor riesgo
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class="pestana"
+          data-pestana="detalle"
+          id="pestana-detalle"
+          aria-controls="panel-detalle"
+          [attr.aria-selected]="pestanaActiva() === 'detalle'"
+          [class.activa]="pestanaActiva() === 'detalle'"
+          [disabled]="!distritoSeleccionado()"
+          (click)="pestana.set('detalle')"
+        >
+          Distrito seleccionado
+        </button>
+      </div>
+
+      <div
+        class="cuerpo-pestana cuerpo-detalle"
+        role="tabpanel"
+        id="panel-detalle"
+        aria-labelledby="pestana-detalle"
+        [hidden]="pestanaActiva() !== 'detalle'"
+      >
+        @if (distritoSeleccionado()) {
+          <button type="button" class="volver" data-volver (click)="volverATabla()">
+            ← Volver a distritos de mayor riesgo
+          </button>
+          @if (detalleError(); as msg) {
+            <p class="error" data-error="detalle">{{ msg }}</p>
+          } @else if (detalleCargando()) {
+            <p class="cargando" data-cargando="detalle">Cargando detalle…</p>
+          } @else {
+            <app-tarjeta-detalle-distrito
+              [distrito]="distritoDetalle()"
+              [valorEsperado]="valorEsperadoDetalle()"
+              [tercil]="tercilDetalle()"
+              [serieHoraria]="serieHorariaDetalle()"
+              [porCausa]="porCausaFranja()"
+              [franjaSeleccionada]="franja()"
+              (cerrar)="cerrarDetalle()"
+            />
+          }
+        }
+      </div>
+
+      <div
+        class="cuerpo-pestana cuerpo-tabla"
+        role="tabpanel"
+        id="panel-tabla"
+        aria-labelledby="pestana-tabla"
+        [hidden]="pestanaActiva() !== 'tabla'"
+      >
+        @if (rankingError(); as msg) {
+          <p class="error" data-error="ranking">{{ msg }}</p>
+        } @else if (rankingCargando()) {
+          <p class="cargando" data-cargando="ranking">Cargando ranking…</p>
         } @else {
-          <app-tarjeta-detalle-distrito
-            [distrito]="distritoDetalle()"
-            [valorEsperado]="valorEsperadoDetalle()"
-            [tercil]="tercilDetalle()"
-            [serieHoraria]="serieHorariaDetalle()"
-            (cerrar)="cerrarDetalle()"
+          <app-ranking-panel
+            [ranking]="ranking()"
+            [distritoSeleccionado]="distritoSeleccionado()"
+            [cambios]="cambioPctPorDistrito()"
+            [mostrarCambio]="escenarioPct() !== 0"
+            [visible]="pestanaActiva() === 'tabla'"
+            (seleccionar)="seleccionar($event)"
           />
         }
       </div>
-    }
-
-    <div class="lista-ranking">
-      @if (rankingError(); as msg) {
-        <p class="error" data-error="ranking">{{ msg }}</p>
-      } @else if (rankingCargando()) {
-        <p class="cargando" data-cargando="ranking">Cargando ranking…</p>
-      } @else {
-        <app-ranking-panel
-          [ranking]="ranking()"
-          [distritoSeleccionado]="distritoSeleccionado()"
-          (seleccionar)="seleccionar($event)"
-        />
-      }
     </div>
   </aside>
 </div>

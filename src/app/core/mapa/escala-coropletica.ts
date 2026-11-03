@@ -2,18 +2,25 @@ import { formatearDecimal } from '../format/formato';
 import { ClaseLeyenda } from '../../shared/components/leyenda-mapa/clase-leyenda.model';
 
 /**
- * Azules de 5 clases (ColorBrewer "Blues"), secuencial y seguro para
+ * Azules de 6 clases (ColorBrewer "Blues"), secuencial y seguro para
  * daltonismo. Nunca arcoíris ni divergente: el riesgo va de menos a más.
  */
-const COLORES_SECUENCIALES = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'];
+export const COLORES_SECUENCIALES = ['#eff3ff', '#c6dbef', '#9ecae1', '#6baed6', '#3182bd', '#08306b'];
+
+/**
+ * Percentiles de los cortes: cuatro quintiles y un corte aparte desde el
+ * percentil 95, para que la clase superior aísle a los distritos más altos
+ * (p. ej. San Salvador) en vez de mezclarlos con el resto del AMSS.
+ */
+const PERCENTILES_CORTE = [0.2, 0.4, 0.6, 0.8, 0.95];
 
 /** Gris neutro, distinguible de la clase más baja de la escala. */
 export const COLOR_SIN_DATO = '#bdbdbd';
 
 export interface EscalaCoropletica {
-  /** Los 4 cortes internos que delimitan las 5 clases (cuantiles 20/40/60/80 de los valores recibidos: los 103 distritos). */
+  /** Los 5 cortes internos (percentiles 20/40/60/80/95 de los valores recibidos, redondeados a 2 decimales) que delimitan las 6 clases. */
   cortes: number[];
-  /** Las 5 clases de la leyenda, en orden de menor a mayor riesgo. */
+  /** Las 6 clases de la leyenda, en orden de menor a mayor riesgo. */
   clases: ClaseLeyenda[];
   /** Color de una clase para un valor dado, o el color "sin dato" si es null/undefined. */
   colorPara(valor: number | null | undefined): string;
@@ -36,20 +43,24 @@ function cuantil(valoresOrdenados: number[], p: number): number {
   );
 }
 
-export function crearEscalaCoropletica(valores: number[]): EscalaCoropletica {
+/** `decimales`: de las etiquetas de la leyenda y del redondeo de los cortes (2 por defecto; 0 para conteos). */
+export function crearEscalaCoropletica(valores: number[], decimales = 2): EscalaCoropletica {
   if (valores.length === 0) {
     return { cortes: [], clases: [], colorPara: () => COLOR_SIN_DATO };
   }
 
   const ordenados = [...valores].sort((a, b) => a - b);
-  const cortes = [0.2, 0.4, 0.6, 0.8].map((p) => cuantil(ordenados, p));
-  const minimo = ordenados[0];
-  const maximo = ordenados[ordenados.length - 1];
+  // Se redondea a 2 decimales para que la leyenda y el color de cada distrito usen exactamente los mismos cortes.
+  const factor = 10 ** decimales;
+  const redondear = (v: number) => Math.round(v * factor) / factor;
+  const cortes = PERCENTILES_CORTE.map((p) => redondear(cuantil(ordenados, p)));
+  const minimo = redondear(ordenados[0]);
+  const maximo = redondear(ordenados[ordenados.length - 1]);
   const limites = [minimo, ...cortes, maximo];
 
   const clases: ClaseLeyenda[] = COLORES_SECUENCIALES.map((color, i) => ({
     color,
-    etiqueta: `${formatearDecimal(limites[i], 2)} – ${formatearDecimal(limites[i + 1], 2)}`,
+    etiqueta: `${formatearDecimal(limites[i], decimales)} – ${formatearDecimal(limites[i + 1], decimales)}`,
   }));
 
   function colorPara(valor: number | null | undefined): string {

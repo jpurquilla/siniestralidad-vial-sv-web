@@ -1,12 +1,12 @@
 .cuerpo {
-  display: flex;
-  flex-wrap: wrap;
+  /* Dos columnas de la misma altura: la derecha se ajusta a mapa + leyenda. */
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
   gap: var(--space-5);
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 .columna-mapa {
-  flex: 2 1 480px;
   min-width: 0;
 }
 
@@ -16,13 +16,10 @@
      mapa a medir min-height × 1.8 y desborda la página en pantallas angostas. */
   width: 100%;
   box-sizing: border-box;
-  /* El Salvador mide ~2.44° de longitud × ~1.3° de latitud a esta latitud
-     (~13.8°N), lo que da una proporción real de ~1.8:1. Con un contenedor
-     casi cuadrado, Leaflet ajusta al ancho y deja franjas vacías enormes
-     arriba/abajo — este aspect-ratio evita ese desperdicio. */
+  /* El Salvador mide ~2.44° de longitud × ~1.3° de latitud (~1.8:1). */
   aspect-ratio: 1.8 / 1;
   max-height: 70vh;
-  min-height: 320px;
+  min-height: 200px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -42,31 +39,110 @@
   margin-top: var(--space-3);
 }
 
+/* Escritorio: la columna mide lo que mide la izquierda (mapa + leyenda) y el
+   panel se superpone a ella sin aportar altura propia. */
 .columna-lateral {
-  flex: 1 1 300px;
-  min-width: 280px;
-  max-height: 65vh;
+  position: relative;
+  min-width: 0;
+}
+
+.panel-lateral {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-}
-
-.detalle {
-  flex: none;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
+  overflow: hidden;
 }
 
-.lista-ranking {
+.pestanas {
+  flex: none;
+  display: flex;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pestana {
+  flex: 1 1 0;
+  padding: var(--space-2);
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.pestana:hover:not(:disabled) {
+  color: var(--color-brand);
+}
+
+.pestana.activa {
+  color: var(--color-brand);
+  border-bottom-color: var(--color-brand);
+}
+
+.pestana:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cuerpo-pestana {
   flex: 1 1 auto;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cuerpo-pestana[hidden] {
+  display: none;
+}
+
+.cuerpo-detalle {
   overflow-y: auto;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+}
+
+.volver {
+  align-self: flex-start;
+  margin: var(--space-3) var(--space-4) 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--color-brand);
+  cursor: pointer;
+}
+
+.volver:hover {
+  text-decoration: underline;
+}
+
+/* La tabla usa toda la altura; el scroll vive dentro de ranking-panel, solo en las filas. */
+.cuerpo-tabla app-ranking-panel {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Pantallas angostas: la columna pasa debajo del mapa y todo usa el scroll de la página. */
+@media (max-width: 899.98px) {
+  .cuerpo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel-lateral {
+    position: static;
+    overflow: visible;
+  }
+
+  .cuerpo-pestana,
+  .cuerpo-detalle {
+    overflow: visible;
+  }
 }
 
 .error {

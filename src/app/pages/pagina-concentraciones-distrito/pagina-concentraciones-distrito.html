@@ -1,0 +1,61 @@
+<h2>Concentraciones por distrito</h2>
+
+<app-aviso-api [mensaje]="aviso" />
+
+@if (opcionesError(); as msg) {
+  <p class="error" data-error="opciones">{{ msg }}</p>
+}
+@if (geojsonError(); as msg) {
+  <p class="error" data-error="geojson">{{ msg }}</p>
+}
+
+<app-barra-concentraciones
+  [opciones]="opciones()"
+  [filtroInicial]="filtroInicial"
+  [queryParams]="queryParams()"
+  rutaOtraVersion="/concentraciones-area"
+  (filtroChange)="onFiltroChange($event)"
+>
+  <label class="selector">
+    Mostrar
+    <select data-testid="metrica" (change)="onMetricaChange($event)">
+      <option value="tasa" [selected]="metrica() === 'tasa'">Siniestros por 10,000 habitantes</option>
+      <option value="numero" [selected]="metrica() === 'numero'">Número de siniestros</option>
+    </select>
+  </label>
+</app-barra-concentraciones>
+
+@if (error(); as msg) {
+  <p class="error" data-error="distritos">{{ msg }}</p>
+} @else {
+  <p class="total" data-testid="total">
+    @if (cargando()) {
+      Cargando siniestros…
+    } @else {
+      {{ total() | conteo }} siniestros en 103 distritos
+    }
+  </p>
+}
+
+<div class="cuerpo">
+  <div class="mapa-envoltorio">
+    <app-mapa-distritos
+      [geojson]="geojson()"
+      [datosPorDistrito]="datosPorDistrito()"
+      [escala]="escala()"
+      [formatoTooltip]="formatoTooltip"
+      [zoomMaximo]="zoomMaximo"
+      [limites]="limites"
+    />
+  </div>
+  <aside class="lateral">
+    <p class="titulo-leyenda">{{ tituloLeyenda() }}</p>
+    <app-leyenda-mapa
+      [titulo]="tituloLeyenda()"
+      [clases]="escala().clases"
+      colorSinDato="#bdbdbd"
+      etiquetaSinDato="Fuera del alcance del estudio"
+      [sinDatoSoloContorno]="true"
+    />
+  </aside>
+</div>

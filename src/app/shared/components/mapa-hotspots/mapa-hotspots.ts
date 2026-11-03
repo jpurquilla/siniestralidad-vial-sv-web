@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, effect, input, viewChild } from '@angular/core';
 import * as L from 'leaflet';
-import 'leaflet.markercluster';
 
+import { crearGrupoDeClusters } from '../../../core/mapa/leaflet-clusters';
 import { formatearFechaLarga } from '../../../core/format/formato';
 import { etiquetaFranja } from '../../../core/modelo/etiquetas-modelo';
 import { SiniestroPuntoOut } from '../../../core/models/siniestro-punto.model';
@@ -69,7 +69,7 @@ export class MapaHotspots implements AfterViewInit, OnDestroy {
       maxZoom: 18,
     }).addTo(this.mapa);
 
-    this.capaClusters = L.markerClusterGroup();
+    this.capaClusters = crearGrupoDeClusters();
     try {
       // En jsdom (tests) el contenedor mide 0×0: el cálculo interno de
       // bounds de leaflet.markercluster (_getExpandedVisibleBounds, en

@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 
-import { interpretarCalibracion } from '../../core/equidad/interpretar-calibracion';
+import { RANGO_CALIBRADO, interpretarCalibracion } from '../../core/equidad/interpretar-calibracion';
 import { mensajeErrorHttp } from '../../core/errores/mensaje-error-http';
 import { formatearDecimal, formatearPorcentaje } from '../../core/format/formato';
 import { GrupoEquidadOut } from '../../core/models/equidad.model';
@@ -14,9 +14,18 @@ export interface GrupoVista {
   nDistritos: number;
   calibracion: string;
   spearman: string;
+  descripcion: string | null;
   lectura: 'sobreestima' | 'subestima' | 'exacta';
   etiquetaLectura: string;
 }
+
+const NOTA_POCOS_DISTRITOS =
+  'Los grupos rural y de baja densidad tienen pocos distritos: leer su Spearman con cautela.';
+
+const DESCRIPCION_GRUPO: Record<string, string> = {
+  Urbano: '30% o más de población urbana',
+  Rural: 'menos de 30% de población urbana',
+};
 
 export interface CorteVista {
   titulo: string;
@@ -33,6 +42,7 @@ function aVista(g: GrupoEquidadOut): GrupoVista {
     nDistritos: g.n_distritos,
     calibracion: formatearDecimal(g.calibracion, 2),
     spearman: formatearDecimal(g.spearman, 2),
+    descripcion: DESCRIPCION_GRUPO[g.grupo] ?? null,
     lectura: i.lectura,
     etiquetaLectura: detalle,
   };
@@ -53,15 +63,17 @@ export class PaginaEquidad {
   protected readonly urbanoRural = signal<GrupoEquidadOut[]>([]);
   protected readonly densidadPoblacional = signal<GrupoEquidadOut[]>([]);
 
+  protected readonly rangoCalibrado = `${formatearDecimal(RANGO_CALIBRADO.minimo, 2)} y ${formatearDecimal(RANGO_CALIBRADO.maximo, 2)}`;
+
   protected readonly cortes = computed<CorteVista[]>(() => [
     {
       titulo: 'Urbano vs. rural',
-      nota: 'El grupo rural tiene pocos distritos: leer su Spearman con cautela.',
+      nota: NOTA_POCOS_DISTRITOS,
       grupos: this.urbanoRural().map(aVista),
     },
     {
       titulo: 'Alta vs. baja densidad poblacional',
-      nota: null,
+      nota: NOTA_POCOS_DISTRITOS,
       grupos: this.densidadPoblacional().map(aVista),
     },
   ]);

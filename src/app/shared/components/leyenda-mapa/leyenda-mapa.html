@@ -11,6 +11,7 @@
       <span class="etiqueta">{{ extra.etiqueta }}</span>
     </li>
   }
+  @if (mostrarSinDato()) {
   <li data-clase data-sin-dato>
     <span
       class="swatch"
@@ -19,4 +20,5 @@
     ></span>
     <span class="etiqueta">{{ etiquetaSinDato() }}</span>
   </li>
+  }
 </ul>

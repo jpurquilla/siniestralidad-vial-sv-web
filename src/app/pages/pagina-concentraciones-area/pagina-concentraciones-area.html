@@ -1,0 +1,41 @@
+<h2>Concentraciones por área (2 km)</h2>
+
+<app-aviso-api [mensaje]="aviso" />
+
+@if (opcionesError(); as msg) {
+  <p class="error" data-error="opciones">{{ msg }}</p>
+}
+
+<app-barra-concentraciones
+  [opciones]="opciones()"
+  [filtroInicial]="filtroInicial"
+  [queryParams]="queryParams()"
+  rutaOtraVersion="/concentraciones-distrito"
+  (filtroChange)="onFiltroChange($event)"
+/>
+
+@if (error(); as msg) {
+  <p class="error" data-error="hexagonos">{{ msg }}</p>
+} @else {
+  <p class="total" data-testid="total">
+    @if (cargando()) {
+      Cargando siniestros…
+    } @else {
+      {{ total() | conteo }} siniestros en {{ hexagonos().length | conteo }} áreas
+    }
+  </p>
+}
+
+<div class="cuerpo">
+  <div class="mapa-envoltorio">
+    <app-mapa-hexagonos [hexagonos]="hexagonos()" [escala]="escala()" />
+  </div>
+  <aside class="lateral">
+    <p class="titulo-leyenda">Siniestros por área de 2 km (escala logarítmica)</p>
+    <app-leyenda-mapa
+      titulo="Siniestros por área de 2 km (escala logarítmica)"
+      [clases]="escala().clases"
+      [mostrarSinDato]="false"
+    />
+  </aside>
+</div>

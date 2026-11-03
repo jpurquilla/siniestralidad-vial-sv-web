@@ -93,4 +93,33 @@ describe('PaginaEquidad', () => {
     const texto = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(texto.toLowerCase()).toContain('error');
   });
+
+  it('muestra la nota de cautela en ambas secciones', () => {
+    httpMock.expectOne(`${API}/api/v1/equidad`).flush(respuesta);
+    fixture.detectChanges();
+    const notas = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('.nota-corte'),
+    ).map((n) => n.textContent?.trim());
+    expect(notas).toEqual([
+      'Los grupos rural y de baja densidad tienen pocos distritos: leer su Spearman con cautela.',
+      'Los grupos rural y de baja densidad tienen pocos distritos: leer su Spearman con cautela.',
+    ]);
+  });
+
+  it('describe los grupos Urbano y Rural por su porcentaje de población urbana', () => {
+    httpMock.expectOne(`${API}/api/v1/equidad`).flush(respuesta);
+    fixture.detectChanges();
+    const textos = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('[data-descripcion-grupo]'),
+    ).map((n) => n.textContent?.trim());
+    expect(textos).toEqual(['30% o más de población urbana', 'menos de 30% de población urbana']);
+  });
+
+  it('la leyenda indica el rango de «Calibrado» derivado de la tolerancia', () => {
+    httpMock.expectOne(`${API}/api/v1/equidad`).flush(respuesta);
+    fixture.detectChanges();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('[data-rango-calibrado]')?.textContent,
+    ).toContain('Calibrado: entre 0.95 y 1.05');
+  });
 });

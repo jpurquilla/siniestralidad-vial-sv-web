@@ -95,17 +95,25 @@
 
 .serie li {
   display: grid;
-  grid-template-columns: 6.5rem 1fr 3rem;
+  grid-template-columns: 6rem 1fr 3rem;
   align-items: center;
   gap: var(--space-3);
   font-size: 0.8rem;
 }
 
 .serie .franja {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.franja-nombre {
+  color: var(--color-text);
+}
+
+.franja-horario {
+  font-size: 0.68rem;
   color: var(--color-text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .barra-fondo {
@@ -125,6 +133,55 @@
 .serie .valor {
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+.frase-causas {
+  margin: 0 0 var(--space-3);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.causas {
+  list-style: none;
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.causas li {
+  display: grid;
+  grid-template-columns: minmax(0, 8.5rem) 1fr 2.6rem 3rem;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.78rem;
+}
+
+.causa-nombre {
+  line-height: 1.2;
+  overflow-wrap: break-word;
+}
+
+.causas .causa-valor,
+.causas .causa-pct {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.causas .causa-pct {
+  color: var(--color-text-muted);
+}
+
+.causa-otras .barra {
+  background: var(--color-text-muted);
+}
+
+.nota-causas {
+  margin: 0;
+  font-size: 0.7rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
 }
 
 dl {

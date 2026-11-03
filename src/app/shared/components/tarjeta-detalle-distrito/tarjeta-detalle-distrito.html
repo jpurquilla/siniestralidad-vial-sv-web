@@ -25,7 +25,10 @@
     <ul class="serie">
       @for (punto of serieHoraria(); track punto.franja) {
         <li>
-          <span class="franja">{{ etiquetaFranja(punto.franja) }}</span>
+          <span class="franja">
+            <span class="franja-nombre" data-franja-nombre>{{ nombreFranja(punto.franja) }}</span>
+            <span class="franja-horario" data-franja-horario>{{ horarioFranja(punto.franja) }}</span>
+          </span>
           <span class="barra-fondo">
             <span class="barra" [style.width.%]="porcentaje(punto.valor)"></span>
           </span>
@@ -33,6 +36,40 @@
         </li>
       }
     </ul>
+
+    @if (causas().principales.length > 0) {
+      <h3>Siniestros esperados por causa</h3>
+      @if (frase(); as texto) {
+        <p class="frase-causas" data-frase-causas>{{ texto }}</p>
+      }
+      <ul class="causas" data-causas>
+        @for (fila of causas().principales; track fila.causa) {
+          <li data-causa>
+            <span class="causa-nombre">{{ fila.causa }}</span>
+            <span class="barra-fondo"
+              ><span class="barra" [style.width.%]="anchoCausa(fila.esperado)"></span
+            ></span>
+            <span class="causa-valor">{{ fila.esperado | number: '1.2-2' }}</span>
+            <span class="causa-pct">{{ fila.proporcion | porcentaje: { esFraccion: true } }}</span>
+          </li>
+        }
+        @if (causas().otras; as otras) {
+          <li data-causa data-causa-otras class="causa-otras">
+            <span class="causa-nombre">{{ otras.causa }}</span>
+            <span class="barra-fondo"
+              ><span class="barra" [style.width.%]="anchoCausa(otras.esperado)"></span
+            ></span>
+            <span class="causa-valor">{{ otras.esperado | number: '1.2-2' }}</span>
+            <span class="causa-pct">{{ otras.proporcion | porcentaje: { esFraccion: true } }}</span>
+          </li>
+        }
+      </ul>
+      <p class="nota-causas" data-nota-causas>
+        Son valores promedio: indican cómo suelen repartirse las causas en esta franja horaria, no la
+        causa de un siniestro en particular. La composición proviene del histórico 2022-2024 y en el
+        conjunto de datos no varía entre distritos ni entre días de la semana.
+      </p>
+    }
 
     <h3>Datos del distrito</h3>
     <dl>

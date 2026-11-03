@@ -14,6 +14,9 @@
   <span class="clave">
     <span class="punto punto-subestima"></span> Menor que 1: el modelo subestima.
   </span>
+  <span class="clave" data-rango-calibrado>
+    <span class="punto punto-exacta"></span> Calibrado: entre {{ rangoCalibrado }}.
+  </span>
 </p>
 
 @if (cargando()) {
@@ -32,6 +35,9 @@
           @for (g of corte.grupos; track g.grupo) {
             <div class="tarjeta" [class]="'tarjeta lectura-' + g.lectura" data-tarjeta-grupo>
               <span class="tarjeta-titulo">{{ g.grupo }}</span>
+              @if (g.descripcion; as desc) {
+                <span class="tarjeta-descripcion" data-descripcion-grupo>{{ desc }}</span>
+              }
               <span class="tarjeta-n">{{ g.nDistritos }} distritos</span>
               <div class="tarjeta-metricas">
                 <div>

@@ -83,4 +83,31 @@ describe('RankingPanel', () => {
 
     expect(emitidos).toEqual(['01-01']);
   });
+
+  it('muestra la diferencia de cada distrito respecto de la normal solo con escenario', () => {
+    const sin = crear().nativeElement as HTMLElement;
+    expect(sin.querySelector('[data-diferencia]')).toBeNull();
+    expect(sin.querySelector('[data-cabecera-cambio]')).toBeNull();
+    expect(sin.querySelector('[data-aviso-diferencia]')).toBeNull();
+
+    const fixture = crear();
+    fixture.componentRef.setInput('mostrarCambio', true);
+    fixture.componentRef.setInput(
+      'cambios',
+      new Map([
+        ['01-01', 13.54],
+        ['02-02', -2.26],
+        ['03-03', 0.3],
+      ]),
+    );
+    fixture.detectChanges();
+    const textos = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('[data-diferencia]'),
+    ).map((e) => e.textContent?.trim());
+    expect(textos).toEqual(['+13.5%', '-2.3%', '–']);
+    const cab = (fixture.nativeElement as HTMLElement).querySelector('[data-cabecera-columnas]');
+    expect(cab?.textContent).toContain('Distrito');
+    expect(cab?.textContent).toContain('Siniestros esperados');
+    expect(cab?.textContent).toContain('Cambio por lluvia');
+  });
 });

@@ -1,19 +1,27 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, debounceTime, distinctUntilChanged, filter, of, switchMap } from 'rxjs';
 
 import { mensajeErrorHttp } from '../../core/errores/mensaje-error-http';
+import { hoyEnElSalvador } from '../../core/format/fecha-el-salvador';
+import { codigoDeFeature, departamentoDeFeature, nombreDeFeature } from '../../core/mapa/distrito-feature';
 import { crearEscalaCoropletica } from '../../core/mapa/escala-coropletica';
 import { DistritoOut } from '../../core/models/distrito.model';
-import { DistritoGeoJsonResultado } from '../../core/models/distrito-geojson.model';
+import { DistritoFeature, DistritoGeoJsonResultado } from '../../core/models/distrito-geojson.model';
 import { FRANJAS, Franja } from '../../core/models/franja.model';
+import { PrediccionResponse } from '../../core/models/prediccion.model';
+import { CausaEsperada } from '../../core/models/prediccion.model';
 import { RankingItemOut } from '../../core/models/ranking.model';
 import { DistritosService } from '../../core/services/distritos.service';
 import { PrediccionesService } from '../../core/services/predicciones.service';
 import { RankingService } from '../../core/services/ranking.service';
 import { SeleccionDistritoService } from '../../core/state/seleccion-distrito.service';
+import {
+  BuscadorDistrito,
+  OpcionBusqueda,
+} from '../../shared/components/buscador-distrito/buscador-distrito';
 import { AvisoSintetico } from '../../shared/components/aviso-sintetico/aviso-sintetico';
 import { ControlesPrediccion } from '../../shared/components/controles-prediccion/controles-prediccion';
 import { LeyendaMapa } from '../../shared/components/leyenda-mapa/leyenda-mapa';
@@ -27,19 +35,25 @@ import {
   TarjetaDetalleDistrito,
 } from '../../shared/components/tarjeta-detalle-distrito/tarjeta-detalle-distrito';
 
-const FECHA_INICIAL = '2024-06-15';
+interface OpcionDistrito {
+  codigo: string | null;
+  feature: DistritoFeature | null;
+}
+
 const FRANJA_INICIAL: Franja = 'Tarde (12-17)';
 
 @Component({
   selector: 'app-pagina-mapa',
   imports: [
     AvisoSintetico,
+    BuscadorDistrito,
     ControlesPrediccion,
     LeyendaMapa,
     MapaDistritos,
     RankingPanel,
     TarjetaDetalleDistrito,
   ],
+  host: { '(window:scroll)': 'alDesplazarPagina()' },
   templateUrl: './pagina-mapa.html',
   styleUrl: './pagina-mapa.css',
 })
@@ -51,12 +65,24 @@ export class PaginaMapa {
   private readonly ruta = inject(ActivatedRoute);
 
   protected readonly fecha = signal(
-    this.ruta.snapshot.queryParamMap.get('fecha') ?? FECHA_INICIAL,
+    this.ruta.snapshot.queryParamMap.get('fecha') ?? hoyEnElSalvador(),
   );
   protected readonly franja = signal<Franja>(FRANJA_INICIAL);
-  protected readonly prcpMensual = signal<number | null>(null);
+  /** Escenario de lluvia relativo a la normal de cada distrito, en % (-100 a +100); 0 = lluvia normal. */
+  protected readonly escenarioPct = signal(0);
 
   protected readonly distritoSeleccionado = this.seleccion.distritoSeleccionado;
+
+  private readonly mapa = viewChild(MapaDistritos);
+  /** Scroll de la página con la tabla a la vista; en pantallas angostas la tabla scrollea con la página. */
+  private scrollPaginaConTabla = 0;
+
+  /** Un solo bloque a la vez en la columna derecha. */
+  protected readonly pestana = signal<'tabla' | 'detalle'>('tabla');
+  /** Sin distrito seleccionado la pestaña de la tarjeta no existe: se muestra la tabla. */
+  protected readonly pestanaActiva = computed(() =>
+    this.distritoSeleccionado() ? this.pestana() : 'tabla',
+  );
 
   protected readonly distritos = signal<DistritoOut[]>([]);
   protected readonly distritosCargando = signal(true);
@@ -65,9 +91,43 @@ export class PaginaMapa {
   protected readonly geojson = signal<DistritoGeoJsonResultado | null>(null);
   protected readonly geojsonError = signal<string | null>(null);
 
-  protected readonly valoresPorDistrito = signal<Map<string, number>>(new Map());
-  /** Normal climatológica (mm) por distrito para el mes consultado, según la API. */
-  protected readonly prcpNormalPorDistrito = signal<Map<string, number>>(new Map());
+  /** Predicción con la normal climatológica (sin escenario): línea base del escenario. */
+  protected readonly valoresNormalPorDistrito = signal<Map<string, number>>(new Map());
+  /** Predicción con la precipitación elegida; vacío mientras no hay escenario. */
+  private readonly valoresEscenarioPorDistrito = signal<Map<string, number>>(new Map());
+
+  protected readonly valoresPorDistrito = computed(() =>
+    this.escenarioPct() === 0 ? this.valoresNormalPorDistrito() : this.valoresEscenarioPorDistrito(),
+  );
+
+  /** Cambio porcentual por distrito (escenario frente a normal); null sin escenario. */
+  protected readonly cambioPctPorDistrito = computed<Map<string, number> | null>(() => {
+    if (this.escenarioPct() === 0) {
+      return null;
+    }
+    const normal = this.valoresNormalPorDistrito();
+    const escenario = this.valoresEscenarioPorDistrito();
+    const resultado = new Map<string, number>();
+    for (const [codigo, valor] of escenario) {
+      const base = normal.get(codigo);
+      if (base !== undefined && base > 0) {
+        resultado.set(codigo, (valor / base - 1) * 100);
+      }
+    }
+    return resultado.size > 0 ? resultado : null;
+  });
+
+  /** Variación (%) del total nacional esperado frente a la normal; null sin escenario o sin datos. */
+  protected readonly variacionTotalPct = computed<number | null>(() => {
+    const normal = this.valoresNormalPorDistrito();
+    const escenario = this.valoresEscenarioPorDistrito();
+    if (this.escenarioPct() === 0 || normal.size === 0 || escenario.size === 0) {
+      return null;
+    }
+    const total = (m: Map<string, number>) => [...m.values()].reduce((a, b) => a + b, 0);
+    const base = total(normal);
+    return base > 0 ? (total(escenario) / base - 1) * 100 : null;
+  });
   protected readonly usaUltimoParque = signal(false);
   protected readonly prediccionesCargando = signal(false);
   protected readonly prediccionesError = signal<string | null>(null);
@@ -77,22 +137,56 @@ export class PaginaMapa {
   protected readonly rankingError = signal<string | null>(null);
 
   protected readonly serieHorariaDetalle = signal<PuntoSerieHoraria[]>([]);
+  /** Reparto por causa de cada franja del distrito seleccionado (misma respuesta que la serie horaria). */
+  private readonly porCausaDetalle = signal<Map<Franja, CausaEsperada[]>>(new Map());
+  protected readonly porCausaFranja = computed(() => this.porCausaDetalle().get(this.franja()) ?? []);
   protected readonly detalleCargando = signal(false);
   protected readonly detalleError = signal<string | null>(null);
 
-  /** Normal climatológica del distrito seleccionado o, sin selección, la mediana de los distritos. */
-  protected readonly prcpNormal = computed<number | null>(() => {
-    const normales = this.prcpNormalPorDistrito();
-    const codigo = this.distritoSeleccionado();
-    if (codigo && normales.has(codigo)) {
-      return normales.get(codigo) ?? null;
+  /**
+   * Opciones del buscador: los distritos del estudio (nombre y departamento de la API) más los
+   * del GeoJSON que quedan fuera del alcance. Se identifican por id porque los nombres se repiten.
+   */
+  protected readonly opcionesBusqueda = computed<OpcionBusqueda<OpcionDistrito>[]>(() => {
+    const porCodigo = new Map(this.distritos().map((d) => [d.codigo, d]));
+    const resultado: OpcionBusqueda<OpcionDistrito>[] = [];
+    const vistos = new Set<string>();
+    const geo = this.geojson();
+    const features = geo?.estado === 'ok' ? geo.datos.features : [];
+    features.forEach((feature, indice) => {
+      const codigo = codigoDeFeature(feature);
+      const distrito = codigo ? porCodigo.get(codigo) : undefined;
+      if (distrito) {
+        vistos.add(distrito.codigo);
+        resultado.push({
+          id: distrito.codigo,
+          nombre: distrito.nombre,
+          departamento: distrito.departamento,
+          enAlcance: true,
+          referencia: { codigo: distrito.codigo, feature },
+        });
+      } else {
+        resultado.push({
+          id: `fuera-${indice}`,
+          nombre: nombreDeFeature(feature),
+          departamento: departamentoDeFeature(feature),
+          enAlcance: false,
+          referencia: { codigo: null, feature },
+        });
+      }
+    });
+    for (const d of this.distritos()) {
+      if (!vistos.has(d.codigo)) {
+        resultado.push({
+          id: d.codigo,
+          nombre: d.nombre,
+          departamento: d.departamento,
+          enAlcance: true,
+          referencia: { codigo: d.codigo, feature: null },
+        });
+      }
     }
-    const ordenados = [...normales.values()].sort((a, b) => a - b);
-    if (ordenados.length === 0) {
-      return null;
-    }
-    const medio = Math.floor(ordenados.length / 2);
-    return ordenados.length % 2 === 1 ? ordenados[medio] : (ordenados[medio - 1] + ordenados[medio]) / 2;
+    return resultado;
   });
 
   protected readonly escala = computed(() =>
@@ -131,6 +225,13 @@ export class PaginaMapa {
   });
 
   constructor() {
+    // Seleccionar un distrito (mapa, tabla o buscador) abre la pestaña de su tarjeta.
+    effect(() => {
+      if (this.distritoSeleccionado()) {
+        this.pestana.set('detalle');
+      }
+    });
+
     this.distritosService.listar().subscribe({
       next: (respuesta) => {
         this.distritos.set(respuesta.distritos);
@@ -147,11 +248,11 @@ export class PaginaMapa {
       error: (error: HttpErrorResponse) => this.geojsonError.set(mensajeErrorHttp(error)),
     });
 
+    // Línea base: normal climatológica (prcp_mensual = null). No depende del control de lluvia.
     toObservable(
       computed(() => ({
         fecha: this.fecha(),
         franja: this.franja(),
-        prcpMensual: this.prcpMensual(),
         codigos: this.distritos().map((d) => d.codigo),
       })),
     )
@@ -161,41 +262,47 @@ export class PaginaMapa {
         switchMap((p) => {
           this.prediccionesCargando.set(true);
           this.prediccionesError.set(null);
-          return this.prediccionesService
-            .predecir({
-              distritos: p.codigos,
-              fecha_inicio: p.fecha,
-              fecha_fin: p.fecha,
-              franjas: [p.franja],
-              prcp_mensual: p.prcpMensual,
-            })
-            .pipe(
-              catchError((error: HttpErrorResponse) => {
-                this.prediccionesError.set(mensajeErrorHttp(error));
-                return of(null);
-              }),
-            );
+          return this.pedirPrediccionesMapa(p.codigos, p.fecha, p.franja, null);
         }),
         takeUntilDestroyed(),
       )
       .subscribe((respuesta) => {
         this.prediccionesCargando.set(false);
         if (respuesta) {
-          this.valoresPorDistrito.set(
-            new Map(respuesta.predicciones.map((p) => [p.distrito_codigo, p.siniestros_esperados])),
-          );
+          this.valoresNormalPorDistrito.set(this.aMapaDeValores(respuesta));
           this.usaUltimoParque.set(
             respuesta.predicciones.some((p) => p.fuente_parque === 'ultimo_disponible'),
           );
-          const normales = respuesta.predicciones.filter(
-            (p) => p.fuente_prcp === 'normal_climatologica' && typeof p.prcp_mensual === 'number',
-          );
-          if (normales.length > 0) {
-            this.prcpNormalPorDistrito.set(
-              new Map(normales.map((p) => [p.distrito_codigo, p.prcp_mensual as number])),
-            );
-          }
         }
+      });
+
+    // Escenario: predicción con la precipitación elegida. Sin escenario se vacía.
+    toObservable(
+      computed(() => ({
+        fecha: this.fecha(),
+        franja: this.franja(),
+        escenarioPct: this.escenarioPct(),
+        codigos: this.distritos().map((d) => d.codigo),
+      })),
+    )
+      .pipe(
+        debounceTime(250),
+        filter((p) => p.codigos.length > 0),
+        switchMap((p) => {
+          if (p.escenarioPct === 0) {
+            return of(null);
+          }
+          this.prediccionesCargando.set(true);
+          this.prediccionesError.set(null);
+          return this.pedirPrediccionesMapa(p.codigos, p.fecha, p.franja, p.escenarioPct / 100);
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((respuesta) => {
+        if (this.escenarioPct() !== 0) {
+          this.prediccionesCargando.set(false);
+        }
+        this.valoresEscenarioPorDistrito.set(respuesta ? this.aMapaDeValores(respuesta) : new Map());
       });
 
     toObservable(computed(() => ({ fecha: this.fecha(), franja: this.franja() })))
@@ -224,7 +331,7 @@ export class PaginaMapa {
       computed(() => ({
         codigo: this.distritoSeleccionado(),
         fecha: this.fecha(),
-        prcpMensual: this.prcpMensual(),
+        escenarioPct: this.escenarioPct(),
       })),
     )
       .pipe(
@@ -241,7 +348,7 @@ export class PaginaMapa {
               fecha_inicio: p.fecha,
               fecha_fin: p.fecha,
               franjas: [...FRANJAS],
-              prcp_mensual: p.prcpMensual,
+              factor_prcp: p.escenarioPct === 0 ? null : p.escenarioPct / 100,
             })
             .pipe(
               catchError((error: HttpErrorResponse) => {
@@ -254,6 +361,9 @@ export class PaginaMapa {
       )
       .subscribe((respuesta) => {
         this.detalleCargando.set(false);
+        this.porCausaDetalle.set(
+          new Map((respuesta?.predicciones ?? []).map((p) => [p.franja, p.por_causa ?? []])),
+        );
         this.serieHorariaDetalle.set(
           respuesta
             ? respuesta.predicciones.map((p) => ({
@@ -265,11 +375,62 @@ export class PaginaMapa {
       });
   }
 
+  private pedirPrediccionesMapa(
+    codigos: string[],
+    fecha: string,
+    franja: Franja,
+    factorPrcp: number | null,
+  ) {
+    return this.prediccionesService
+      .predecir({
+        distritos: codigos,
+        fecha_inicio: fecha,
+        fecha_fin: fecha,
+        franjas: [franja],
+        factor_prcp: factorPrcp,
+      })
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          this.prediccionesError.set(mensajeErrorHttp(error));
+          return of(null);
+        }),
+      );
+  }
+
+  private aMapaDeValores(respuesta: PrediccionResponse): Map<string, number> {
+    return new Map(respuesta.predicciones.map((p) => [p.distrito_codigo, p.siniestros_esperados]));
+  }
+
   protected seleccionar(codigo: string): void {
     this.seleccion.seleccionar(codigo);
   }
 
+  /** Elegir en el buscador: selecciona, centra el mapa y abre la tarjeta (si está en el estudio). */
+  protected elegirDeBuscador(opcion: OpcionBusqueda): void {
+    const { codigo, feature } = opcion.referencia as OpcionDistrito;
+    if (feature) {
+      this.mapa()?.enfocar(feature);
+    }
+    if (opcion.enAlcance && codigo) {
+      this.seleccion.seleccionar(codigo);
+    }
+  }
+
+  /** Vuelve a la tabla conservando el distrito seleccionado (queda resaltado en su fila). */
+  protected volverATabla(): void {
+    this.pestana.set('tabla');
+    requestAnimationFrame(() => window.scrollTo({ top: this.scrollPaginaConTabla }));
+  }
+
+  protected alDesplazarPagina(): void {
+    if (this.pestanaActiva() === 'tabla') {
+      this.scrollPaginaConTabla = window.scrollY;
+    }
+  }
+
+  /** La X de la tarjeta también deselecciona el distrito del mapa. */
   protected cerrarDetalle(): void {
     this.seleccion.seleccionar(null);
+    this.pestana.set('tabla');
   }
 }

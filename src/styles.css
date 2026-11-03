@@ -98,3 +98,10 @@ button {
   outline: 2px solid var(--color-brand);
   outline-offset: 2px;
 }
+
+/* Tooltip del mapa: con ancho acotado y salto de línea no se sale del recuadro del mapa. */
+.leaflet-tooltip {
+  white-space: normal;
+  width: max-content;
+  max-width: 220px;
+}

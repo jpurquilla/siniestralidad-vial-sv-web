@@ -1,12 +1,12 @@
 import { COLOR_SIN_DATO, crearEscalaCoropletica } from './escala-coropletica';
 
 describe('crearEscalaCoropletica', () => {
-  it('produce 5 clases y 4 cortes internos con valores distintos', () => {
+  it('produce 6 clases y 5 cortes internos con valores distintos', () => {
     const valores = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     const escala = crearEscalaCoropletica(valores);
 
-    expect(escala.clases.length).toBe(5);
-    expect(escala.cortes.length).toBe(4);
+    expect(escala.clases.length).toBe(6);
+    expect(escala.cortes.length).toBe(5);
   });
 
   it('asigna colores distintos al valor más bajo y al más alto', () => {
@@ -53,13 +53,13 @@ describe('crearEscalaCoropletica', () => {
     const escala = crearEscalaCoropletica([3, 3, 3, 3]);
 
     expect(() => escala.colorPara(3)).not.toThrow();
-    expect(escala.clases.length).toBe(5);
+    expect(escala.clases.length).toBe(6);
   });
 
   it('con un único valor, todos los cortes son ese mismo valor', () => {
     const escala = crearEscalaCoropletica([7]);
 
-    expect(escala.cortes).toEqual([7, 7, 7, 7]);
+    expect(escala.cortes).toEqual([7, 7, 7, 7, 7]);
     expect(escala.colorPara(7)).not.toBe(COLOR_SIN_DATO);
   });
 
@@ -70,18 +70,43 @@ describe('crearEscalaCoropletica', () => {
     expect(escala.cortes[0]).toBe(20);
   });
 
-  it('con 103 distritos reparte los valores en quintiles (≈20 por clase)', () => {
+  it('con 103 distritos reparte en cuatro quintiles, una clase 80-95 y una clase superior de ~5 distritos', () => {
     const valores = Array.from({ length: 103 }, (_, i) => (i + 1) ** 1.5);
     const escala = crearEscalaCoropletica(valores);
-    const porClase = new Map<string, number>();
+    const porColor = new Map<string, number>();
     for (const v of valores) {
-      porClase.set(escala.colorPara(v), (porClase.get(escala.colorPara(v)) ?? 0) + 1);
+      porColor.set(escala.colorPara(v), (porColor.get(escala.colorPara(v)) ?? 0) + 1);
     }
+    const porClase = escala.clases.map((c) => porColor.get(c.color) ?? 0);
 
-    expect(porClase.size).toBe(5);
-    for (const cantidad of porClase.values()) {
+    expect(porClase.length).toBe(6);
+    for (const cantidad of porClase.slice(0, 4)) {
       expect(cantidad).toBeGreaterThanOrEqual(20);
       expect(cantidad).toBeLessThanOrEqual(22);
     }
+    expect(porClase[4]).toBeGreaterThanOrEqual(14);
+    expect(porClase[4]).toBeLessThanOrEqual(17);
+    expect(porClase[5]).toBeGreaterThanOrEqual(5);
+    expect(porClase[5]).toBeLessThanOrEqual(6);
+  });
+
+  it('la clase superior empieza en el percentil 95 y aísla a los valores más altos', () => {
+    const valores = [...Array.from({ length: 98 }, (_, i) => 0.1 + i * 0.005), 1.5, 1.8, 2.0, 2.2, 2.55];
+    const escala = crearEscalaCoropletica(valores);
+    const superior = escala.clases[5].color;
+
+    expect(escala.colorPara(2.55)).toBe(superior);
+    expect(escala.colorPara(1.5)).toBe(superior);
+    expect(escala.colorPara(0.5)).not.toBe(superior);
+  });
+
+  it('redondea los cortes a dos decimales y la leyenda usa esos mismos cortes', () => {
+    const valores = Array.from({ length: 103 }, (_, i) => (i + 1) / 41);
+    const escala = crearEscalaCoropletica(valores);
+
+    for (const corte of escala.cortes) {
+      expect(Math.round(corte * 100) / 100).toBe(corte);
+    }
+    expect(escala.clases[0].etiqueta).toContain(escala.cortes[0].toFixed(2));
   });
 });

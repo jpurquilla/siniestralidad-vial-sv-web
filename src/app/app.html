@@ -1,8 +1,11 @@
 <div class="shell" data-app-shell>
   <nav class="sidebar" data-app-sidebar>
     <div class="marca" data-app-title-block>
-      <h1 class="titulo">Siniestralidad Vial SV</h1>
-      <div class="subtitulo">Predicción de siniestralidad vial</div>
+      <img class="logo" data-app-logo src="favicon.svg" alt="" width="32" height="32" />
+      <div class="marca-texto">
+        <h1 class="titulo">Siniestralidad Vial SV</h1>
+        <div class="subtitulo">Predicción de siniestralidad vial</div>
+      </div>
     </div>
 
     <div class="nav-list" data-nav-list>
@@ -13,6 +16,7 @@
             <a
               class="nav-item"
               [routerLink]="item.ruta"
+              [queryParamsHandling]="item.conservarFiltros ? 'preserve' : ''"
               routerLinkActive="activo"
               [routerLinkActiveOptions]="{ exact: !!item.exacta }"
             >

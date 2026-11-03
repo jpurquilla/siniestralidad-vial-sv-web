@@ -48,6 +48,11 @@ h3 {
   font-size: 1rem;
 }
 
+.tarjeta-descripcion {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
 .tarjeta-n {
   font-size: 0.78rem;
   color: var(--color-text-muted);
@@ -121,6 +126,7 @@ h3 {
   --color-lectura: #b2182b;
 }
 
+.punto-exacta,
 .tarjeta.lectura-exacta {
   --color-lectura: #4d7c4d;
 }

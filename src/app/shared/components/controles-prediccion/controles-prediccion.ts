@@ -1,10 +1,8 @@
 import { Component, computed, input, output } from '@angular/core';
 
-import { formatearConteo } from '../../../core/format/formato';
+import { formatearPorcentaje } from '../../../core/format/formato';
 import { etiquetaFranja } from '../../../core/modelo/etiquetas-modelo';
 import { FRANJAS, Franja } from '../../../core/models/franja.model';
-
-const PRCP_MENSUAL_MAX_MM = 500;
 
 @Component({
   selector: 'app-controles-prediccion',
@@ -15,32 +13,41 @@ const PRCP_MENSUAL_MAX_MM = 500;
 export class ControlesPrediccion {
   readonly fecha = input.required<string>();
   readonly franja = input<Franja>('Tarde (12-17)');
-  /** Escenario de lluvia elegido por el usuario; null = normal climatológica. */
-  readonly prcpMensual = input<number | null>(null);
-  /** Normal climatológica (mm) del distrito y mes, según la API; null si no se conoce. */
-  readonly prcpNormal = input<number | null>(null);
+  /** Escenario de lluvia relativo a la normal de cada distrito, en % (-100 a +100); 0 = lluvia normal. */
+  readonly escenarioPct = input(0);
   /** true si la API usó el último dato de parque vehicular disponible. */
   readonly usaUltimoParque = input(false);
+  /** Variación (%) del total nacional esperado frente a la normal; null si no hay escenario o aún no se calcula. */
+  readonly variacionTotalPct = input<number | null>(null);
 
   readonly fechaChange = output<string>();
   readonly franjaChange = output<Franja>();
-  readonly prcpMensualChange = output<number | null>();
+  readonly escenarioPctChange = output<number>();
 
   protected readonly franjas = FRANJAS.map((valor) => ({ valor, etiqueta: etiquetaFranja(valor) }));
 
-  /** Valor mostrado y posición del deslizador: el escenario o, si no hay, la normal. */
-  protected readonly prcpVigente = computed<number | null>(
-    () => this.prcpMensual() ?? this.prcpNormal(),
-  );
-  protected readonly prcpMax = computed(() =>
-    Math.max(PRCP_MENSUAL_MAX_MM, Math.ceil(this.prcpVigente() ?? 0)),
-  );
-  protected readonly prcpTexto = computed(() => {
-    const valor = this.prcpVigente();
-    if (valor === null) {
-      return 'normal climatológica';
+  protected readonly escenarioTexto = computed(() => {
+    const p = this.escenarioPct();
+    if (p === 0) {
+      return 'Lluvia normal';
     }
-    return `${formatearConteo(valor)} mm${this.prcpMensual() === null ? ' (normal climatológica)' : ''}`;
+    if (p <= -100) {
+      return 'Sin lluvia';
+    }
+    return p > 0
+      ? `Lluvia ${p}% mayor que lo normal`
+      : `Lluvia ${Math.abs(p)}% menor que lo normal`;
+  });
+
+  protected readonly efectoTexto = computed(() => {
+    const v = this.variacionTotalPct();
+    if (v === null) {
+      return null;
+    }
+    if (Math.abs(v) < 0.5) {
+      return 'Sin cambio en los siniestros esperados';
+    }
+    return `${formatearPorcentaje(v, { decimales: 1, conSigno: true })} de siniestros esperados`;
   });
 
   protected onFechaChange(evento: Event): void {
@@ -51,12 +58,11 @@ export class ControlesPrediccion {
     this.franjaChange.emit((evento.target as HTMLSelectElement).value as Franja);
   }
 
-  protected onPrcpChange(evento: Event): void {
-    const valor = (evento.target as HTMLInputElement).value;
-    this.prcpMensualChange.emit(valor === '' ? null : Number(valor));
+  protected onEscenarioChange(evento: Event): void {
+    this.escenarioPctChange.emit(Number((evento.target as HTMLInputElement).value));
   }
 
-  protected restablecerPrcp(): void {
-    this.prcpMensualChange.emit(null);
+  protected restablecer(): void {
+    this.escenarioPctChange.emit(0);
   }
 }

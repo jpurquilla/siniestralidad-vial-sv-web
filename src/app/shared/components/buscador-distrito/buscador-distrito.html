@@ -1,0 +1,47 @@
+<div class="buscador">
+  <label class="etiqueta" for="buscar-distrito">Buscar distrito</label>
+  <input
+    id="buscar-distrito"
+    type="search"
+    class="entrada"
+    data-testid="buscador"
+    role="combobox"
+    autocomplete="off"
+    placeholder="Escriba un distrito…"
+    aria-autocomplete="list"
+    aria-controls="sugerencias-distrito"
+    [attr.aria-expanded]="listaVisible()"
+    [attr.aria-activedescendant]="activo() >= 0 ? 'sugerencia-' + activo() : null"
+    [value]="texto()"
+    (input)="onEntrada($event)"
+    (keydown)="onTecla($event)"
+    (focus)="onFoco()"
+    (blur)="onDesenfoque()"
+  />
+  @if (listaVisible()) {
+    <ul class="sugerencias" id="sugerencias-distrito" role="listbox" data-testid="sugerencias">
+      @for (op of sugerencias(); track op.id; let i = $index) {
+        <!-- mousedown (no click): se ejecuta antes de que el blur cierre la lista -->
+        <li
+          role="option"
+          [id]="'sugerencia-' + i"
+          data-sugerencia
+          [class.activa]="i === activo()"
+          [class.fuera]="!op.enAlcance"
+          [attr.aria-selected]="i === activo()"
+          (mousedown)="$event.preventDefault(); elegirOpcion(op)"
+        >
+          <span class="nombre">{{ op.nombre }}</span>
+          <span class="departamento">{{ op.departamento }}</span>
+          @if (!op.enAlcance) {
+            <span class="etiqueta-fuera" data-fuera-alcance>Fuera del alcance</span>
+          }
+        </li>
+      } @empty {
+        <li class="sin-resultados" role="option" aria-selected="false" data-sin-resultados>
+          Sin coincidencias
+        </li>
+      }
+    </ul>
+  }
+</div>

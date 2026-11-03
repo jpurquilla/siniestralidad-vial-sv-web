@@ -1,7 +1,7 @@
 .controles {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: var(--space-5);
   padding: var(--space-4) var(--space-5);
   margin-bottom: var(--space-4);
@@ -72,12 +72,43 @@
   cursor: pointer;
 }
 
-.nota {
-  margin: calc(-1 * var(--space-2)) 0 var(--space-4);
-  font-size: 0.78rem;
+
+.nota-lluvia {
+  margin: 0;
+  font-size: 0.72rem;
   color: var(--color-text-muted);
 }
 
+.nota-control {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.extremos-slider {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: var(--space-2);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.efecto-total {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.efecto {
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+.extremos-slider span:last-child {
+  text-align: right;
+}
+
 .nota-parque {
-  margin-top: 0;
+  max-width: 15rem;
 }

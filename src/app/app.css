@@ -27,6 +27,18 @@
   color: var(--color-text-muted);
 }
 
+.marca {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.logo {
+  flex: none;
+  width: 32px;
+  height: 32px;
+}
+
 .titulo {
   font-size: 1.15rem;
   font-weight: 700;

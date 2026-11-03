@@ -30,6 +30,20 @@ const ETIQUETAS_FRANJAS: Record<string, string> = {
   'Noche (18-23)': 'Noche (18-23)',
 };
 
+const NOMBRES_FRANJAS: Record<string, string> = {
+  'Madrugada (00-05)': 'Madrugada',
+  'Manana (06-11)': 'Mañana',
+  'Tarde (12-17)': 'Tarde',
+  'Noche (18-23)': 'Noche',
+};
+
+const HORARIOS_FRANJAS: Record<string, string> = {
+  'Madrugada (00-05)': '00:00 a 05:59',
+  'Manana (06-11)': '06:00 a 11:59',
+  'Tarde (12-17)': '12:00 a 17:59',
+  'Noche (18-23)': '18:00 a 23:59',
+};
+
 function humanizar(clave: string): string {
   const texto = clave.replace(/_/g, ' ').trim();
   return texto.charAt(0).toUpperCase() + texto.slice(1);
@@ -68,4 +82,14 @@ export function nombreLegibleModelo(nombre: string): string {
   texto = texto.replace(/\bv\d+\b/i, '').replace(/\s+/g, ' ').trim();
   texto = texto.charAt(0).toUpperCase() + texto.slice(1);
   return version ? `Modelo de ${texto.toLowerCase().replace('xgboost', 'XGBoost')} (versión ${version[1]})` : `Modelo de ${texto}`;
+}
+
+/** Solo el nombre de la franja, sin horario («Mañana»). */
+export function nombreFranja(franja: string): string {
+  return NOMBRES_FRANJAS[franja] ?? franja;
+}
+
+/** Solo el horario de la franja («06:00 a 11:59»); vacío si no se conoce. */
+export function horarioFranja(franja: string): string {
+  return HORARIOS_FRANJAS[franja] ?? '';
 }

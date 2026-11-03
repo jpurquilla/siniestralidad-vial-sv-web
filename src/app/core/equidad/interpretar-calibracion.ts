@@ -7,6 +7,12 @@ export type LecturaCalibracion = 'sobreestima' | 'subestima' | 'exacta';
 /** Tolerancia de lectura: dentro de ±5% se considera calibrado (criterio de presentación). */
 export const TOLERANCIA_CALIBRACION = 0.05;
 
+/** Rango de calibración que recibe la etiqueta «Calibrado»; derivado de la misma tolerancia que usa interpretarCalibracion. */
+export const RANGO_CALIBRADO = {
+  minimo: 1 - TOLERANCIA_CALIBRACION,
+  maximo: 1 + TOLERANCIA_CALIBRACION,
+} as const;
+
 export interface InterpretacionCalibracion {
   lectura: LecturaCalibracion;
   etiqueta: string;
