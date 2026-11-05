@@ -1,6 +1,10 @@
 # Etapa 1: build de producción reproducible (npm ci respeta package-lock.json).
 FROM node:22-alpine AS build
 WORKDIR /app
+
+# Usar la version de npm definida por el proyecto
+RUN npm install -g npm@11.6.2
+
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
