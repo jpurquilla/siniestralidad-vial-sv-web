@@ -1,15 +1,16 @@
-import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 
 import { mensajeErrorHttp } from '../../core/errores/mensaje-error-http';
 import { ComparacionDistritoOut } from '../../core/models/comparacion-historica.model';
 import { ComparacionHistoricaService } from '../../core/services/comparacion-historica.service';
+import { ConteoPipe, PorcentajePipe } from '../../core/format/formato.pipes';
 import { AvisoApi } from '../../shared/components/aviso-api/aviso-api';
+import { NotaPeriodoEvaluacion } from '../../shared/components/nota-periodo-evaluacion/nota-periodo-evaluacion';
 
 @Component({
   selector: 'app-pagina-ranking-comparativo',
-  imports: [AvisoApi, DecimalPipe],
+  imports: [AvisoApi, ConteoPipe, NotaPeriodoEvaluacion, PorcentajePipe],
   templateUrl: './pagina-ranking-comparativo.html',
   styleUrl: './pagina-ranking-comparativo.css',
 })

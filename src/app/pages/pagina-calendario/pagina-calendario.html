@@ -4,8 +4,9 @@
   <div class="kicker">Predicción</div>
   <h1>Calendario de riesgo</h1>
   <p class="subtitulo">
-    Riesgo relativo por día, sumando la predicción real del modelo para los 103 distritos y
-    las 4 franjas. Hacé click en un día para abrir el mapa con esa fecha.
+    Cada día muestra los siniestros esperados en el país en el día: la suma de la predicción del
+    modelo para los 103 distritos y las 4 franjas horarias. Haga clic en un día para abrir el
+    mapa con esa fecha.
   </p>
 </header>
 
@@ -17,13 +18,19 @@
   <div class="cabecera-mes">
     <div class="controles-mes">
       <button type="button" (click)="mesAnterior()" aria-label="Mes anterior">‹</button>
-      <div class="etiqueta-mes">{{ etiquetaMes() }}</div>
+      <div class="etiqueta-mes" data-testid="etiqueta-mes">{{ etiquetaMes() }}</div>
       <button type="button" (click)="mesSiguiente()" aria-label="Mes siguiente">›</button>
     </div>
-    @if (cargando()) {
-      <span class="cargando" data-cargando="calendario">Actualizando…</span>
-    }
   </div>
+
+  @if (cargando()) {
+    <div class="progreso" role="progressbar" aria-label="Calculando predicciones del mes" data-cargando="calendario">
+      <div class="progreso-barra"></div>
+    </div>
+    <p class="cargando">Calculando las predicciones del mes (103 distritos × 4 franjas)…</p>
+  } @else {
+    <div class="progreso-reserva"></div>
+  }
 
   <div class="grilla-semana">
     @for (etiqueta of etiquetasDiaSemana; track $index) {
@@ -31,20 +38,58 @@
     }
   </div>
 
-  <div class="grilla-dias">
-    @for (celda of diasGrilla(); track $index) {
-      <button
-        type="button"
-        class="celda-dia"
-        [class.vacia]="celda.dia === null"
-        [style.background]="celda.color"
-        [disabled]="!celda.seleccionable"
-        (click)="irAlMapa(celda.fecha)"
-      >
-        {{ celda.dia }}
-      </button>
-    }
-  </div>
+  @if (cargando()) {
+    <div class="grilla-dias" data-grilla-carga aria-hidden="true">
+      @for (i of celdasEsqueleto; track i) {
+        <div class="celda-dia esqueleto"></div>
+      }
+    </div>
+  } @else {
+    <div class="grilla-dias">
+      @for (celda of diasGrilla(); track $index) {
+        <button
+          type="button"
+          class="celda-dia"
+          [class.vacia]="celda.dia === null"
+          [style.background]="celda.color"
+          [style.color]="celda.colorTexto"
+          [attr.title]="celda.detalle || null"
+          [attr.aria-label]="celda.detalle || null"
+          [disabled]="!celda.seleccionable"
+          (click)="irAlMapa(celda.fecha)"
+          (mouseenter)="mostrarDetalle(celda)"
+          (focus)="mostrarDetalle(celda)"
+          (mouseleave)="mostrarDetalle(null)"
+          (blur)="mostrarDetalle(null)"
+        >
+          {{ celda.dia }}
+        </button>
+      }
+    </div>
+  }
 
-  <app-leyenda-mapa [clases]="escala().clases" colorSinDato="#bdbdbd" />
+  <p class="lectura" data-testid="lectura-dia" aria-live="polite">
+    {{ detalleActivo() ?? 'Pase el cursor sobre un día para ver su valor.' }}
+  </p>
+
+  @if (leyenda(); as l) {
+    <div class="leyenda-continua" data-leyenda-continua>
+      <div class="leyenda-titulo">Siniestros esperados en el país en el día</div>
+      <div class="leyenda-barra" [style.background]="gradiente"></div>
+      <div class="leyenda-extremos">
+        <span>
+          {{ l.minimo }}<br />
+          <small>{{ l.difMinimo }} respecto del promedio</small>
+        </span>
+        <span class="leyenda-centro">
+          Promedio del mes<br />
+          <small>{{ l.promedio }}</small>
+        </span>
+        <span class="leyenda-der">
+          {{ l.maximo }}<br />
+          <small>{{ l.difMaximo }} respecto del promedio</small>
+        </span>
+      </div>
+    </div>
+  }
 </div>

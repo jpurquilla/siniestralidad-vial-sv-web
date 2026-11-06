@@ -18,6 +18,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'informe-periodo',
+    loadComponent: () =>
+      import('./pages/pagina-informe-periodo/pagina-informe-periodo').then(
+        (m) => m.PaginaInformePeriodo,
+      ),
+  },
+  {
     path: 'equidad',
     loadComponent: () => import('./pages/pagina-equidad/pagina-equidad').then((m) => m.PaginaEquidad),
   },
@@ -45,6 +52,20 @@ export const routes: Routes = [
   {
     path: 'hotspots',
     loadComponent: () => import('./pages/pagina-hotspots/pagina-hotspots').then((m) => m.PaginaHotspots),
+  },
+  {
+    path: 'concentraciones-area',
+    loadComponent: () =>
+      import('./pages/pagina-concentraciones-area/pagina-concentraciones-area').then(
+        (m) => m.PaginaConcentracionesArea,
+      ),
+  },
+  {
+    path: 'concentraciones-distrito',
+    loadComponent: () =>
+      import('./pages/pagina-concentraciones-distrito/pagina-concentraciones-distrito').then(
+        (m) => m.PaginaConcentracionesDistrito,
+      ),
   },
   {
     path: 'acerca-del-modelo',

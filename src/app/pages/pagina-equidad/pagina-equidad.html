@@ -1,8 +1,23 @@
 <h2>Panel de equidad</h2>
 
+<app-nota-periodo-evaluacion />
+
 @if (aviso(); as msg) {
   <app-aviso-api [mensaje]="msg" />
 }
+
+<p class="definicion" data-definicion-calibracion>
+  Calibración = siniestros predichos / observados. 1.00 es exacto.
+  <span class="clave">
+    <span class="punto punto-sobreestima"></span> Mayor que 1: el modelo sobreestima.
+  </span>
+  <span class="clave">
+    <span class="punto punto-subestima"></span> Menor que 1: el modelo subestima.
+  </span>
+  <span class="clave" data-rango-calibrado>
+    <span class="punto punto-exacta"></span> Calibrado: entre {{ rangoCalibrado }}.
+  </span>
+</p>
 
 @if (cargando()) {
   <p class="cargando">Cargando panel de equidad…</p>
@@ -10,52 +25,35 @@
   <p class="error">{{ msg }}</p>
 } @else {
   <div class="grupos">
-    <section class="grupo-corte">
-      <h3>Urbano vs. rural</h3>
-      <p class="nota-corte">
-        Corte por <code>pct_urbano</code> (umbral de NB08 §4). El grupo rural tiene pocos
-        distritos: leer su Spearman con cautela.
-      </p>
-      <div class="tarjetas">
-        @for (g of urbanoRural(); track g.grupo) {
-          <div class="tarjeta">
-            <span class="tarjeta-titulo">{{ g.grupo }}</span>
-            <span class="tarjeta-n">{{ g.n_distritos }} distritos</span>
-            <div class="tarjeta-metricas">
-              <div>
-                <span class="metrica-label">Calibración</span>
-                <span class="metrica-valor">{{ g.calibracion | number: '1.2-2' }}</span>
-              </div>
-              <div>
-                <span class="metrica-label">Spearman</span>
-                <span class="metrica-valor">{{ g.spearman | number: '1.2-2' }}</span>
-              </div>
-            </div>
-          </div>
+    @for (corte of cortes(); track corte.titulo) {
+      <section class="grupo-corte">
+        <h3>{{ corte.titulo }}</h3>
+        @if (corte.nota) {
+          <p class="nota-corte">{{ corte.nota }}</p>
         }
-      </div>
-    </section>
-
-    <section class="grupo-corte">
-      <h3>Alta vs. baja densidad poblacional</h3>
-      <div class="tarjetas">
-        @for (g of densidadPoblacional(); track g.grupo) {
-          <div class="tarjeta">
-            <span class="tarjeta-titulo">{{ g.grupo }}</span>
-            <span class="tarjeta-n">{{ g.n_distritos }} distritos</span>
-            <div class="tarjeta-metricas">
-              <div>
-                <span class="metrica-label">Calibración</span>
-                <span class="metrica-valor">{{ g.calibracion | number: '1.2-2' }}</span>
+        <div class="tarjetas">
+          @for (g of corte.grupos; track g.grupo) {
+            <div class="tarjeta" [class]="'tarjeta lectura-' + g.lectura" data-tarjeta-grupo>
+              <span class="tarjeta-titulo">{{ g.grupo }}</span>
+              @if (g.descripcion; as desc) {
+                <span class="tarjeta-descripcion" data-descripcion-grupo>{{ desc }}</span>
+              }
+              <span class="tarjeta-n">{{ g.nDistritos }} distritos</span>
+              <div class="tarjeta-metricas">
+                <div>
+                  <span class="metrica-label">Calibración</span>
+                  <span class="metrica-valor">{{ g.calibracion }}</span>
+                </div>
+                <div>
+                  <span class="metrica-label">Spearman</span>
+                  <span class="metrica-valor">{{ g.spearman }}</span>
+                </div>
               </div>
-              <div>
-                <span class="metrica-label">Spearman</span>
-                <span class="metrica-valor">{{ g.spearman | number: '1.2-2' }}</span>
-              </div>
+              <span class="lectura" data-lectura>{{ g.etiquetaLectura }}</span>
             </div>
-          </div>
-        }
-      </div>
-    </section>
+          }
+        </div>
+      </section>
+    }
   </div>
 }

@@ -101,6 +101,27 @@ Cubren, entre otras cosas:
 
 `npm audit`: 0 vulnerabilidades a la fecha de este README.
 
+## Build reproducible y Docker
+
+- Dependencias de Leaflet con versión **fija** (sin `^`): `leaflet` 1.9.4, `leaflet.markercluster`
+  1.5.3, `@types/leaflet` 1.9.22 y `@types/leaflet.markercluster` 1.5.5. El `package-lock.json`
+  las fija igual; el build usa `npm ci`.
+- Estilos de Leaflet y del plugin en `angular.json` → `styles`; los íconos se copian al build
+  desde `node_modules/leaflet/dist/images` a `/leaflet/` (`assets`), que es de donde los lee
+  `L.Icon.Default` (`mapa-hotspots.ts`).
+- **`allowedCommonJsDependencies` (`leaflet`, `leaflet.markercluster`)**: ambas librerías son
+  CommonJS/UMD y el builder de Angular avisa de ello en cada build. Esa opción solo silencia
+  esa advertencia; **no** arregla nada. Se mantiene únicamente para esas dos librerías.
+- Los puntos de hotspots no aparecían en el build de producción porque `import * as L` es una
+  copia del módulo hecha antes de que el plugin se registrara, y `L.markerClusterGroup` quedaba
+  `undefined` (`b.markerClusterGroup is not a function`). `core/mapa/leaflet-clusters.ts` crea
+  el grupo sobre la instancia global `window.L`, que es donde el plugin sí se registra.
+
+```bash
+docker build --no-cache -t siniestralidad-web .
+docker run --rm -p 4200:80 siniestralidad-web   # CORS de la API admite http://localhost:4200
+```
+
 ## Elección de mapa: Leaflet, no MapLibre GL
 
 El requisito es coroplético por polígono (nunca puntos ni heatmap), con ~103 distritos y

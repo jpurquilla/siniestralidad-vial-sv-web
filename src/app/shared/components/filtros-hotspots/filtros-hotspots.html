@@ -5,6 +5,7 @@
       type="date"
       data-testid="fecha-inicio"
       class="control-entrada"
+      [value]="fechaInicio()"
       (change)="onCampoChange('fechaInicio', $event)"
     />
   </label>
@@ -15,6 +16,7 @@
       type="date"
       data-testid="fecha-fin"
       class="control-entrada"
+      [value]="fechaFin()"
       (change)="onCampoChange('fechaFin', $event)"
     />
   </label>
@@ -25,6 +27,7 @@
       type="time"
       data-testid="hora-inicio"
       class="control-entrada"
+      [value]="horaInicio()"
       (change)="onCampoChange('horaInicio', $event)"
     />
   </label>
@@ -35,6 +38,7 @@
       type="time"
       data-testid="hora-fin"
       class="control-entrada"
+      [value]="horaFin()"
       (change)="onCampoChange('horaFin', $event)"
     />
   </label>
@@ -48,7 +52,7 @@
     >
       <option value="">Todos</option>
       @for (t of opciones()?.tipos_siniestro; track t) {
-        <option [value]="t">{{ t }}</option>
+        <option [value]="t" [selected]="t === tipoSiniestro()">{{ t }}</option>
       }
     </select>
   </label>
@@ -62,7 +66,7 @@
     >
       <option value="">Todos</option>
       @for (v of opciones()?.tipos_vehiculo; track v) {
-        <option [value]="v">{{ v }}</option>
+        <option [value]="v" [selected]="v === tipoVehiculo()">{{ v }}</option>
       }
     </select>
   </label>
@@ -76,7 +80,7 @@
     >
       <option value="">Todas</option>
       @for (f of opciones()?.factores_causantes; track f) {
-        <option [value]="f">{{ f }}</option>
+        <option [value]="f" [selected]="f === factorCausante()">{{ f }}</option>
       }
     </select>
   </label>
@@ -90,7 +94,7 @@
     >
       <option value="">Todos</option>
       @for (d of opciones()?.departamentos; track d) {
-        <option [value]="d">{{ d }}</option>
+        <option [value]="d" [selected]="d === departamento()">{{ d }}</option>
       }
     </select>
   </label>

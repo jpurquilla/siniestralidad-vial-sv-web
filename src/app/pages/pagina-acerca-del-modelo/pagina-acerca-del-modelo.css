@@ -128,3 +128,90 @@ h3 {
 .cargando {
   color: var(--color-text-muted);
 }
+
+.nota {
+  margin: 0 0 var(--space-3);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.tabla-envoltorio {
+  overflow-x: auto;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.tabla th,
+.tabla td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.tabla .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.pruebas {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.barras {
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.barras li {
+  display: grid;
+  grid-template-columns: minmax(8rem, 15rem) 1fr 3.5rem;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 0.85rem;
+}
+
+.barra-pista {
+  position: relative;
+  height: 0.9rem;
+  background: var(--color-surface-2);
+  border-radius: var(--radius-sm);
+}
+
+.barra {
+  display: block;
+  height: 100%;
+  background: var(--color-brand);
+  border-radius: var(--radius-sm);
+}
+
+.barra-calibracion {
+  background: var(--color-accent);
+}
+
+.referencia {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: var(--color-text);
+}
+
+.barra-valor {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

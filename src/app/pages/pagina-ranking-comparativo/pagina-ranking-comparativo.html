@@ -1,5 +1,7 @@
 <h2>Ranking de distritos: observado vs. predicho</h2>
 
+<app-nota-periodo-evaluacion />
+
 @if (aviso(); as msg) {
   <app-aviso-api [mensaje]="msg" />
 }
@@ -14,7 +16,7 @@
       <thead>
         <tr>
           <th>Distrito</th>
-          <th class="num">Observado (2022-2026)</th>
+          <th class="num">Observado (2025-2026)</th>
           <th class="num">Predicho por el modelo</th>
           <th class="num">Brecha</th>
         </tr>
@@ -23,10 +25,10 @@
         @for (d of distritos(); track d.distrito_codigo) {
           <tr>
             <td>{{ d.nombre }}</td>
-            <td class="num">{{ d.observado | number: '1.1-1' }}</td>
-            <td class="num">{{ d.predicho | number: '1.1-1' }}</td>
+            <td class="num">{{ d.observado | conteo }}</td>
+            <td class="num">{{ d.predicho | conteo }}</td>
             <td class="num">
-              <span [class]="claseBrecha(d.brecha_pct)">{{ d.brecha_pct | number: '1.0-1' }}%</span>
+              <span [class]="claseBrecha(d.brecha_pct)">{{ d.brecha_pct | porcentaje }}</span>
             </td>
           </tr>
         }

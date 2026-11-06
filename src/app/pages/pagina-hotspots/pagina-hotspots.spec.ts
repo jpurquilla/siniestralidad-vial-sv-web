@@ -40,7 +40,7 @@ describe('PaginaHotspots', () => {
     httpMock.expectOne(`${API}/api/v1/siniestros/opciones-filtro`).flush(OPCIONES);
     await new Promise((resolve) => setTimeout(resolve, 300)); // debounce de 250ms
     const respuesta: SiniestrosPuntosResponse = {
-      aviso: 'Estos puntos son sintéticos. NB10 no encontró estructura espacial real.',
+      aviso: 'Aviso de la API que no se muestra tal cual.',
       total: 1,
       puntos: [
         {
@@ -63,13 +63,32 @@ describe('PaginaHotspots', () => {
     httpMock.expectOne((req) => req.url === `${API}/api/v1/siniestros/puntos`).flush(respuesta);
   }
 
-  it('pide las opciones de filtro y los puntos al iniciar, y muestra el aviso de NB10', async () => {
+  it('pide las opciones de filtro y los puntos al iniciar, con el aviso de agrupamientos', async () => {
     await flushInicial();
     fixture.detectChanges();
 
     const texto = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(texto).toContain('NB10 no encontró estructura espacial real');
-    expect(texto).toContain('1');
+    expect(texto).toContain(
+      'Los agrupamientos reflejan cómo se repartieron los siniestros al generar el conjunto de datos; no son concentraciones viales verificadas.',
+    );
+    expect(texto).not.toMatch(/NB\d+/);
+    expect(texto).toContain('1 siniestros encontrados');
+  });
+
+  it('arranca con el filtro de un solo año y lo refleja en los campos de fecha', async () => {
+    httpMock.expectOne(`${API}/api/v1/siniestros/opciones-filtro`).flush(OPCIONES);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const peticion = httpMock.expectOne((req) => req.url === `${API}/api/v1/siniestros/puntos`);
+    const desde = peticion.request.params.get('fecha_inicio') ?? '';
+    const hasta = peticion.request.params.get('fecha_fin') ?? '';
+    expect(desde.slice(0, 4)).toBe(hasta.slice(0, 4));
+    peticion.flush({ aviso: '', total: 0, puntos: [] });
+    fixture.detectChanges();
+
+    const campo = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="fecha-inicio"]',
+    ) as HTMLInputElement;
+    expect(campo.value).toBe(desde);
   });
 
   it('vuelve a pedir los puntos cuando el filtro cambia', async () => {

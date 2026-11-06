@@ -38,4 +38,18 @@ describe('LeyendaMapa', () => {
     const texto = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(texto.toLowerCase()).toContain('sin dato');
   });
+
+  it('permite rotular «Fuera del alcance del estudio» con muestra de solo contorno y añadir clases extra', () => {
+    const fixture = crear();
+    fixture.componentRef.setInput('etiquetaSinDato', 'Fuera del alcance del estudio');
+    fixture.componentRef.setInput('sinDatoSoloContorno', true);
+    fixture.componentRef.setInput('extras', [{ color: '#fff', etiqueta: 'Fuera de escala' }]);
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('Fuera del alcance del estudio');
+    expect(el.textContent).not.toContain('Sin dato');
+    expect(el.textContent).toContain('Fuera de escala');
+    expect(el.querySelector('[data-sin-dato] .swatch-contorno')).toBeTruthy();
+  });
 });

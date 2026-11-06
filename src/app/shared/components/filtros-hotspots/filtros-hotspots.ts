@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, input, linkedSignal, output } from '@angular/core';
 
 import { FiltroSiniestros, OpcionesFiltroSiniestrosResponse } from '../../../core/models/siniestro-punto.model';
 
@@ -10,16 +10,18 @@ import { FiltroSiniestros, OpcionesFiltroSiniestrosResponse } from '../../../cor
 })
 export class FiltrosHotspots {
   readonly opciones = input<OpcionesFiltroSiniestrosResponse | null>(null);
+  /** Valores con los que arrancan los campos (por ejemplo, el año por defecto). */
+  readonly filtroInicial = input<FiltroSiniestros>({});
   readonly filtroChange = output<FiltroSiniestros>();
 
-  protected readonly fechaInicio = signal('');
-  protected readonly fechaFin = signal('');
-  protected readonly tipoSiniestro = signal('');
-  protected readonly tipoVehiculo = signal('');
-  protected readonly factorCausante = signal('');
-  protected readonly horaInicio = signal('');
-  protected readonly horaFin = signal('');
-  protected readonly departamento = signal('');
+  protected readonly fechaInicio = linkedSignal(() => this.filtroInicial().fechaInicio ?? '');
+  protected readonly fechaFin = linkedSignal(() => this.filtroInicial().fechaFin ?? '');
+  protected readonly tipoSiniestro = linkedSignal(() => this.filtroInicial().tipoSiniestro ?? '');
+  protected readonly tipoVehiculo = linkedSignal(() => this.filtroInicial().tipoVehiculo ?? '');
+  protected readonly factorCausante = linkedSignal(() => this.filtroInicial().factorCausante ?? '');
+  protected readonly horaInicio = linkedSignal(() => this.filtroInicial().horaInicio ?? '');
+  protected readonly horaFin = linkedSignal(() => this.filtroInicial().horaFin ?? '');
+  protected readonly departamento = linkedSignal(() => this.filtroInicial().departamento ?? '');
 
   protected onCampoChange(
     campo:

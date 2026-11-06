@@ -1,30 +1,42 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, filter, of, switchMap } from 'rxjs';
 
 import { construirGrillaCalendario } from '../../core/calendario/construir-grilla-calendario';
 import { mensajeErrorHttp } from '../../core/errores/mensaje-error-http';
-import { crearEscalaCoropletica } from '../../core/mapa/escala-coropletica';
+import { mesInicialCalendario } from '../../core/format/fecha-el-salvador';
+import {
+  formatearDecimal,
+  formatearFechaLarga,
+  formatearMesAnio,
+  formatearPorcentaje,
+} from '../../core/format/formato';
+import { GRADIENTE_CONTINUO, crearEscalaContinua } from '../../core/mapa/escala-continua';
 import { FRANJAS } from '../../core/models/franja.model';
 import { DistritosService } from '../../core/services/distritos.service';
 import { PrediccionesService } from '../../core/services/predicciones.service';
 import { AvisoSintetico } from '../../shared/components/aviso-sintetico/aviso-sintetico';
-import { LeyendaMapa } from '../../shared/components/leyenda-mapa/leyenda-mapa';
 
 export interface DiaCalendario {
   fecha: string | null;
   dia: number | null;
   color: string;
+  colorTexto: string;
   seleccionable: boolean;
+  /** Texto para el cursor/lector de pantalla: fecha, total y diferencia respecto del promedio. */
+  detalle: string;
 }
+
+/** Cantidad de celdas esqueleto mientras carga el mes (6 semanas × 7 días). */
+const CELDAS_ESQUELETO = Array.from({ length: 42 }, (_, i) => i);
 
 const ETIQUETAS_DIA_SEMANA = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
 
 @Component({
   selector: 'app-pagina-calendario',
-  imports: [AvisoSintetico, LeyendaMapa],
+  imports: [AvisoSintetico],
   templateUrl: './pagina-calendario.html',
   styleUrl: './pagina-calendario.css',
 })
@@ -32,8 +44,13 @@ export class PaginaCalendario {
   private readonly distritosService = inject(DistritosService);
   private readonly prediccionesService = inject(PrediccionesService);
   private readonly router = inject(Router);
+  private readonly ruta = inject(ActivatedRoute);
 
-  protected readonly mesActual = signal(new Date(2026, 7, 1));
+  protected readonly mesActual = signal(
+    mesInicialCalendario(
+      this.ruta.snapshot.queryParamMap.get('mes') ?? this.ruta.snapshot.queryParamMap.get('fecha'),
+    ),
+  );
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly totalesPorDia = signal<Map<string, number>>(new Map());
@@ -42,13 +59,32 @@ export class PaginaCalendario {
 
   protected readonly etiquetasDiaSemana = ETIQUETAS_DIA_SEMANA;
 
-  protected readonly etiquetaMes = computed(() =>
-    this.mesActual().toLocaleDateString('es-SV', { month: 'long', year: 'numeric' }),
-  );
+  protected readonly celdasEsqueleto = CELDAS_ESQUELETO;
+  protected readonly gradiente = GRADIENTE_CONTINUO;
+  /** Texto de la celda sobre la que está el cursor (o el foco), para lectura inmediata. */
+  protected readonly detalleActivo = signal<string | null>(null);
 
-  protected readonly escala = computed(() =>
-    crearEscalaCoropletica([...this.totalesPorDia().values()]),
-  );
+  protected readonly etiquetaMes = computed(() => {
+    const mes = this.mesActual();
+    return formatearMesAnio(mes.getFullYear(), mes.getMonth());
+  });
+
+  protected readonly escala = computed(() => crearEscalaContinua([...this.totalesPorDia().values()]));
+
+  /** Extremos de la leyenda: valor y diferencia respecto del promedio del mes. */
+  protected readonly leyenda = computed(() => {
+    const e = this.escala();
+    if (!e) {
+      return null;
+    }
+    return {
+      minimo: formatearDecimal(e.minimo, 1),
+      maximo: formatearDecimal(e.maximo, 1),
+      promedio: formatearDecimal(e.promedio, 1),
+      difMinimo: formatearPorcentaje(e.diferenciaPct(e.minimo), { conSigno: true }),
+      difMaximo: formatearPorcentaje(e.diferenciaPct(e.maximo), { conSigno: true }),
+    };
+  });
 
   protected readonly diasGrilla = computed<DiaCalendario[]>(() => {
     const mes = this.mesActual();
@@ -57,14 +93,36 @@ export class PaginaCalendario {
 
     return construirGrillaCalendario(mes.getFullYear(), mes.getMonth()).map((fecha) => {
       if (fecha === null) {
-        return { fecha: null, dia: null, color: 'transparent', seleccionable: false };
+        return {
+          fecha: null,
+          dia: null,
+          color: 'transparent',
+          colorTexto: 'inherit',
+          seleccionable: false,
+          detalle: '',
+        };
       }
       const dia = Number(fecha.slice(-2));
+      const total = totales.get(fecha);
+      if (total === undefined || !escala) {
+        return {
+          fecha,
+          dia,
+          color: 'transparent',
+          colorTexto: 'inherit',
+          seleccionable: false,
+          detalle: '',
+        };
+      }
       return {
         fecha,
         dia,
-        color: escala.colorPara(totales.get(fecha) ?? null),
-        seleccionable: totales.has(fecha),
+        color: escala.colorPara(total),
+        colorTexto: escala.textoPara(total),
+        seleccionable: true,
+        detalle:
+          `${formatearFechaLarga(fecha)}: ${formatearDecimal(total, 1)} siniestros esperados en el país en el día ` +
+          `(${formatearPorcentaje(escala.diferenciaPct(total), { conSigno: true })} respecto del promedio del mes)`,
       };
     });
   });
@@ -81,6 +139,8 @@ export class PaginaCalendario {
         switchMap((p) => {
           this.cargando.set(true);
           this.error.set(null);
+          this.totalesPorDia.set(new Map());
+          this.detalleActivo.set(null);
           const fechasDelMes = construirGrillaCalendario(
             p.mes.getFullYear(),
             p.mes.getMonth(),
@@ -120,6 +180,10 @@ export class PaginaCalendario {
 
   protected mesSiguiente(): void {
     this.mesActual.update((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+  }
+
+  protected mostrarDetalle(celda: DiaCalendario | null): void {
+    this.detalleActivo.set(celda && celda.seleccionable ? celda.detalle : null);
   }
 
   protected irAlMapa(fecha: string | null): void {

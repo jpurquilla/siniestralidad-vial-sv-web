@@ -5,15 +5,26 @@
     <p class="advertencia">⚠️ {{ msg }}</p>
   }
 
+  @if (spearman() !== null) {
+    <p class="dato-spearman" data-spearman>
+      Correlación de orden (Spearman) en el periodo de evaluación:
+      {{ spearman() | number: '1.2-2' }}
+    </p>
+  }
+
   <ul>
     @for (item of items(); track item.distrito_codigo) {
       <li
         data-fila
+        [class.con-cambio]="mostrarCambio()"
         [class.seleccionado]="item.distrito_codigo === distritoSeleccionado()"
         (click)="seleccionar.emit(item.distrito_codigo)"
       >
         <span class="nombre">{{ item.nombre }}</span>
         <span class="valor">{{ item.siniestros_esperados | number: '1.2-2' }}</span>
+        @if (mostrarCambio()) {
+          <span class="cambio" data-diferencia>{{ cambioDe(item.distrito_codigo) }}</span>
+        }
       </li>
     }
   </ul>

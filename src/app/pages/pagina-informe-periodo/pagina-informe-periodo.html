@@ -1,0 +1,235 @@
+<h2>Informe por periodo</h2>
+<p class="intro">
+  Siniestros esperados en un rango de fechas, sumando las predicciones del modelo por distrito, día y franja
+  horaria. Son promedios, no una cuenta de siniestros reales.
+</p>
+
+<app-aviso-sintetico />
+
+@if (errorListas(); as msg) {
+  <p class="error" data-error="listas">{{ msg }}</p>
+}
+
+<form class="parametros tarjeta" (submit)="$event.preventDefault(); generar()" data-testid="parametros">
+  <div class="fila">
+    <label class="campo">
+      <span class="etiqueta">Fecha inicial</span>
+      <input type="date" name="fecha_inicio" data-testid="fecha-inicio" [value]="solicitud().fecha_inicio" (change)="onFecha('fecha_inicio', $event)" />
+    </label>
+    <label class="campo">
+      <span class="etiqueta">Fecha final</span>
+      <input type="date" name="fecha_fin" data-testid="fecha-fin" [value]="solicitud().fecha_fin" (change)="onFecha('fecha_fin', $event)" />
+    </label>
+    <label class="campo">
+      <span class="etiqueta">Departamento</span>
+      <select name="departamento" data-testid="departamento" (change)="onDepartamento($event)">
+        <option value="" [selected]="!solicitud().departamento">Todos</option>
+        @for (d of departamentos(); track d) {
+          <option [value]="d" [selected]="d === solicitud().departamento">{{ d }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  @if (errorValidacion(); as msg) {
+    <p class="error pequeno" role="alert" data-testid="error-validacion">{{ msg }}</p>
+  } @else {
+    <p class="ayuda" data-testid="dias-periodo">
+      Periodo de {{ diasPeriodo() }} {{ diasPeriodo() === 1 ? 'día' : 'días' }} (máximo {{ maximoDias }}).
+    </p>
+  }
+
+  <div class="campo-distritos">
+    <span class="etiqueta">Distritos (opcional; sin elegir, todos)</span>
+    <div class="buscador-caja">
+      <app-buscador-distrito [opciones]="opcionesDistrito()" [limpiarAlElegir]="true" (elegir)="onElegirDistrito($event)" />
+    </div>
+    @if (chipsDistritos().length) {
+      <ul class="chips" aria-label="Distritos elegidos" data-testid="chips-distritos">
+        @for (chip of chipsDistritos(); track chip.codigo) {
+          <li class="chip" data-chip>
+            {{ chip.nombre }}
+            <button type="button" [attr.aria-label]="'Quitar ' + chip.nombre" (click)="quitarDistrito(chip.codigo)">×</button>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+
+  <div class="fila fila-checks">
+    <fieldset class="grupo">
+      <legend class="etiqueta">Franjas horarias (sin marcar: todas)</legend>
+      <div class="checks">
+        @for (f of franjas; track f) {
+          <label class="check">
+            <input type="checkbox" name="franjas" [value]="f" [checked]="solicitud().franjas.includes(f)" (change)="alternarFranja(f, $any($event.target).checked)" />
+            {{ nombreFranja(f) }} <span class="horario">{{ horarioFranja(f) }}</span>
+          </label>
+        }
+      </div>
+    </fieldset>
+    <fieldset class="grupo">
+      <legend class="etiqueta">Días de la semana (sin marcar: todos)</legend>
+      <div class="checks">
+        @for (d of dias; track d.indice) {
+          <label class="check check-dia" [attr.title]="d.nombre">
+            <input type="checkbox" name="dias_semana" [value]="d.indice" [attr.aria-label]="d.nombre" [checked]="solicitud().dias_semana.includes(d.indice)" (change)="alternarDia(d.indice, $any($event.target).checked)" />
+            {{ d.corto }}
+          </label>
+        }
+      </div>
+    </fieldset>
+  </div>
+
+  <div class="acciones">
+    <button type="submit" class="boton primario" data-testid="generar" [disabled]="!!errorValidacion() || cargando()">
+      {{ cargando() ? 'Generando…' : 'Generar informe' }}
+    </button>
+    <span class="ayuda">Un periodo largo puede tardar unos segundos.</span>
+  </div>
+</form>
+
+@if (error(); as msg) {
+  <p class="error" role="alert" data-error="informe">{{ msg }}</p>
+}
+
+@if (cargando()) {
+  <p class="estado" role="status" data-testid="cargando">
+    <span class="spinner" aria-hidden="true"></span> Calculando el informe…
+  </p>
+}
+
+@if (informe(); as inf) {
+  <div class="informe" [class.desactualizado]="cargando()" data-testid="informe">
+    <div class="barra-informe">
+      <div>
+        <p class="periodo" data-testid="periodo">{{ periodoInforme() }}</p>
+        <p class="meta">
+          Generado el {{ generadoEn() }}
+          @for (f of filtrosAplicados(); track f) {
+            · {{ f }}
+          }
+        </p>
+      </div>
+      <div class="descargas">
+        <button type="button" class="boton" data-testid="descargar-pdf" [disabled]="descargando() !== null" [attr.aria-busy]="descargando() === 'pdf'" (click)="descargar('pdf')">
+          {{ descargando() === 'pdf' ? 'Generando PDF…' : 'Descargar PDF' }}
+        </button>
+        <button type="button" class="boton" data-testid="descargar-xlsx" [disabled]="descargando() !== null" [attr.aria-busy]="descargando() === 'xlsx'" (click)="descargar('xlsx')">
+          {{ descargando() === 'xlsx' ? 'Generando Excel…' : 'Descargar Excel' }}
+        </button>
+      </div>
+    </div>
+    @if (errorDescarga(); as msg) {
+      <p class="error" role="alert" data-error="descarga">{{ msg }}</p>
+    }
+
+    <section class="tarjeta" aria-labelledby="h-resumen" data-testid="resumen">
+      <h3 id="h-resumen">{{ textos.TABLA_1 }}</h3>
+      <p class="texto-resumen" data-testid="resumen-texto">{{ inf.resumen.texto }}</p>
+      <div class="tabla-envoltorio">
+        <table class="tabla tabla-resumen" data-testid="resumen-tabla">
+          <tbody>
+            @for (fila of inf.resumen.filas; track fila.etiqueta) {
+              <tr data-fila-resumen>
+                <th scope="row">{{ fila.etiqueta }}</th>
+                <td>{{ fila.valor }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="tarjeta" aria-labelledby="h-prioridades" data-testid="prioridades">
+      <h3 id="h-prioridades">{{ textos.TABLA_2 }}</h3>
+      <div class="tabla-envoltorio">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th scope="col" class="num">#</th>
+              <th scope="col">Distrito</th>
+              <th scope="col">Día</th>
+              <th scope="col">Franja</th>
+              <th scope="col" class="num">Esperado por día</th>
+              <th scope="col" class="num">Veces en el periodo</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of inf.prioridades; track $index) {
+              <tr data-prioridad>
+                <td class="num">{{ $index + 1 }}</td>
+                <th scope="row">{{ p.distrito }}</th>
+                <td>{{ p.dia_semana }}</td>
+                <td>{{ nombreFranja(p.franja) }} <span class="horario">{{ horarioFranja(p.franja) }}</span></td>
+                <td class="num">{{ formatearDecimal(p.esperado, 1) }}</td>
+                <td class="num">{{ p.veces }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="tarjeta" aria-labelledby="h-causas" data-testid="causas">
+      <h3 id="h-causas">Causas de los siniestros esperados</h3>
+
+      <figure data-figura="1">
+        <figcaption>{{ textos.FIGURA_1 }}</figcaption>
+        <app-grafico-causas-barras [causas]="inf.por_causa" [colores]="inf.colores_causas" />
+        <p class="fuente">{{ fuenteFiguras }}</p>
+      </figure>
+
+      <figure data-figura="2">
+        <figcaption>{{ textos.FIGURA_2 }}</figcaption>
+        <app-grafico-causas-franja [franjas]="inf.causas_por_franja" [colores]="inf.colores_causas" />
+        <p class="fuente">{{ fuenteFiguras }}</p>
+      </figure>
+    </section>
+
+    <section class="tarjeta" aria-labelledby="h-temporal" data-testid="temporal">
+      <h3 id="h-temporal">Distribución temporal</h3>
+
+      <figure data-figura="3" data-testid="dias">
+        <figcaption>{{ textos.FIGURA_3 }}</figcaption>
+        <app-grafico-dias-semana [dias]="inf.por_dia_semana" />
+        <p class="fuente">{{ fuenteFiguras }}</p>
+      </figure>
+
+      <figure data-figura="4" data-testid="calor">
+        <figcaption>{{ textos.FIGURA_4 }}</figcaption>
+        <app-mapa-calor-franja [distritos]="inf.distrito_x_franja" />
+        <p class="fuente">{{ fuenteFiguras }}</p>
+      </figure>
+    </section>
+
+    <section class="tarjeta" aria-labelledby="h-tabla" data-testid="tabla">
+      <h3 id="h-tabla">{{ textos.TABLA_3 }}</h3>
+      <app-tabla-distritos-informe [distritos]="inf.por_distrito" />
+    </section>
+
+    <section class="tarjeta" aria-labelledby="h-supuestos" data-testid="supuestos">
+      <h3 id="h-supuestos">Supuestos y limitaciones</h3>
+      <ul class="lista" data-testid="lista-supuestos">
+        <li data-supuesto="lluvia">{{ textoLluvia }}</li>
+        @if (textoParque(); as t) {
+          <li data-supuesto="parque">{{ t }}</li>
+        }
+        <li data-supuesto="vehiculos">
+          Composición histórica por tipo de vehículo (2022-2024):
+          @for (v of inf.supuestos.composicion_vehiculos; track v.tipo; let ultimo = $last) {
+            {{ v.tipo }} {{ formatearDecimal(v.porcentaje, 1) }}%{{ ultimo ? '.' : ',' }}
+          }
+        </li>
+        @for (n of notasSupuestos; track $index) {
+          <li data-supuesto="nota">{{ n }}</li>
+        }
+      </ul>
+      <ul class="lista" data-testid="limitaciones">
+        @for (l of inf.limitaciones; track $index) {
+          <li data-limitacion>{{ l }}</li>
+        }
+      </ul>
+    </section>
+  </div>
+}

@@ -1,8 +1,8 @@
-import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 
 import { mensajeErrorHttp } from '../../core/errores/mensaje-error-http';
+import { ConteoPipe, PorcentajePipe } from '../../core/format/formato.pipes';
 import {
   LetalidadPorEdadOut,
   RepartoTipoUsuarioOut,
@@ -12,7 +12,7 @@ import { AvisoApi } from '../../shared/components/aviso-api/aviso-api';
 
 @Component({
   selector: 'app-pagina-usuarios-vulnerables',
-  imports: [AvisoApi, DecimalPipe],
+  imports: [AvisoApi, ConteoPipe, PorcentajePipe],
   templateUrl: './pagina-usuarios-vulnerables.html',
   styleUrl: './pagina-usuarios-vulnerables.css',
 })

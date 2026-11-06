@@ -14,7 +14,7 @@ export async function loadApiBaseUrl(valorDeRespaldo: string): Promise<string> {
     }
 
     const config = (await respuesta.json()) as AppConfig;
-    if (typeof config.apiBaseUrl !== 'string' || config.apiBaseUrl.length === 0) {
+    if (typeof config.apiBaseUrl !== 'string') {
       throw new Error('config.json no tiene un campo "apiBaseUrl" válido');
     }
 

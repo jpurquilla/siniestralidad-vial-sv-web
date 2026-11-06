@@ -1,0 +1,91 @@
+/* Anchos fijos de las columnas numéricas, compartidos con las filas de ranking-grupo. */
+:host {
+  --ancho-col-valor: 6rem;
+  --ancho-col-cambio: 5.5rem;
+}
+
+
+/* Columna flexible: encabezado fijo, filas con scroll propio y notas abajo. */
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.filas {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.notas {
+  flex: none;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.notas summary {
+  padding: var(--space-1) var(--space-4);
+  cursor: pointer;
+}
+
+.unidad {
+  margin: 0;
+  padding: var(--space-3) var(--space-4) 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.aviso-orden {
+  margin: var(--space-2) var(--space-4) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-2);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+/* Encabezado fijo con las mismas columnas y relleno que las filas: el contenido
+   que se desplaza queda debajo, nunca el primer dato bajo el título. */
+.cabecera-columnas {
+  flex: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--ancho-col-valor);
+  gap: var(--space-3);
+  /* relleno lateral = padding de la lista (space-2) + padding de la fila (space-3) */
+  padding: var(--space-1) var(--space-3);
+  margin: var(--space-1) var(--space-2) 0;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.cabecera-columnas.con-cambio {
+  grid-template-columns: minmax(0, 1fr) var(--ancho-col-valor) var(--ancho-col-cambio);
+}
+
+.cabecera-columnas span:not(:first-child) {
+  text-align: right;
+}
+
+/* Pantallas angostas: sin scroll interno; la tabla completa usa el scroll de la página. */
+@media (max-width: 899.98px) {
+  :host {
+    height: auto;
+    --ancho-col-valor: 4.5rem;
+    --ancho-col-cambio: 4.5rem;
+  }
+
+  .filas {
+    overflow: visible;
+  }
+}

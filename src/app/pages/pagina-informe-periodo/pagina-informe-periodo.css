@@ -1,0 +1,268 @@
+:host {
+  display: block;
+  max-width: 62rem;
+}
+
+h2 {
+  margin: 0 0 var(--space-2);
+  font-size: 1.3rem;
+}
+
+h3 {
+  margin: 0 0 var(--space-3);
+  font-size: 1.05rem;
+}
+
+h4 {
+  margin: var(--space-5) 0 var(--space-3);
+  font-size: 0.9rem;
+}
+
+figure {
+  margin: 0 0 var(--space-5);
+}
+
+figure:last-child {
+  margin-bottom: 0;
+}
+
+figcaption {
+  margin: 0 0 var(--space-3);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.fuente {
+  margin: var(--space-2) 0 0;
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+}
+
+.texto-resumen {
+  margin: 0 0 var(--space-4);
+  max-width: 48rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.tabla.tabla-resumen th[scope='row'] {
+  width: 45%;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.tabla.tabla-resumen td {
+  font-weight: 700;
+}
+
+.intro {
+  margin: 0 0 var(--space-4);
+  max-width: 44rem;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+
+.tarjeta {
+  margin: 0 0 var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.etiqueta {
+  display: block;
+  margin-bottom: var(--space-1);
+  padding: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+input[type='date'],
+select {
+  font: inherit;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.fila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.horario {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.boton {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.boton:hover:not(:disabled) {
+  background: var(--color-surface-2);
+}
+
+.boton.primario {
+  background: #1f3a5f;
+  border-color: #1f3a5f;
+  color: #fff;
+}
+
+.boton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  padding: var(--space-3);
+  margin: 0 0 var(--space-3);
+  color: var(--color-danger-text);
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-md);
+  max-width: 40rem;
+}
+
+.error.pequeno {
+  margin: var(--space-2) 0 0;
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.82rem;
+}
+
+.estado {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-brand);
+  border-radius: 50%;
+  animation: giro 0.8s linear infinite;
+}
+
+@keyframes giro {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.informe.desactualizado {
+  opacity: 0.55;
+}
+
+.barra-informe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.periodo,
+.meta {
+  margin: 0;
+}
+
+.periodo {
+  font-weight: 700;
+}
+
+.meta {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.descargas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.tabla-envoltorio {
+  overflow-x: auto;
+  margin-top: var(--space-3);
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.tabla th,
+.tabla td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  font-weight: 400;
+}
+
+.tabla thead th {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  background: var(--color-surface-2);
+  white-space: nowrap;
+}
+
+.tabla .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.lista {
+  margin: 0 0 var(--space-3);
+  padding-left: var(--space-5);
+  font-size: 0.85rem;
+}
+
+.lista li + li {
+  margin-top: var(--space-2);
+}
+
+@media (max-width: 640px) {
+  .tarjeta {
+    padding: var(--space-3);
+  }
+
+  .tabla {
+    font-size: 0.78rem;
+  }
+
+  .tabla th,
+  .tabla td {
+    padding: var(--space-2) var(--space-1);
+  }
+
+  .tabla thead th {
+    white-space: normal;
+    vertical-align: bottom;
+  }
+
+  .tabla .horario {
+    display: none;
+  }
+}

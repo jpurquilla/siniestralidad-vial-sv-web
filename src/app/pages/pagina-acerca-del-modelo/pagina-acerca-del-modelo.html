@@ -5,36 +5,116 @@
 } @else if (info(); as m) {
   <article class="acerca">
     <header class="acerca-cabecera">
-      <h2>{{ m.nombre }}</h2>
-      <p class="meta">
-        Entrenado el {{ m.fecha_entrenamiento }} · offset <code>{{ m.offset }}</code>
-      </p>
+      <h2>{{ nombreModelo() }}</h2>
+      <p class="meta">Entrenado el {{ fechaEntrenamiento() }}</p>
     </header>
 
-    <section>
-      <h3>Métricas (NB07)</h3>
+    <section data-seccion="metricas">
+      <h3>Métricas del modelo final</h3>
+      <p class="nota">
+        Evaluadas sobre 2025-2026, un periodo que el modelo no vio al entrenar. Calibración =
+        siniestros predichos / observados. 1.00 es exacto.
+      </p>
       <div class="tarjetas-metricas">
-        @for (par of metricasOrdenadas(); track par[0]) {
+        @for (fila of comparacion(); track fila.clave) {
           <div class="tarjeta-metrica">
-            <span class="metrica-nombre">{{ par[0] }}</span>
-            <span class="metrica-valor">{{ par[1] }}</span>
+            <span class="metrica-nombre">{{ fila.etiqueta }}</span>
+            <span class="metrica-valor">{{ fila.final }}</span>
           </div>
         }
       </div>
     </section>
 
-    <section>
-      <h3>Variables del modelo</h3>
-      <div class="chips">
-        @for (variable of m.variables; track variable) {
-          <code class="chip">{{ variable }}</code>
-        }
+    <section data-seccion="comparacion">
+      <h3>Modelo final frente al modelo anterior</h3>
+      <div class="tabla-envoltorio">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Métrica</th>
+              <th class="num">Modelo final</th>
+              <th class="num">Modelo anterior</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (fila of comparacion(); track fila.clave) {
+              <tr>
+                <td>{{ fila.etiqueta }}</td>
+                <td class="num">{{ fila.final }}</td>
+                <td class="num">{{ fila.anterior }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
-      <p class="nota-shap">
-        La importancia SHAP de cada variable (NB09 §4) todavía no la expone
-        <code>GET /api/v1/modelo/info</code>; por eso no se muestra acá.
-      </p>
     </section>
+
+    @if (m.pruebas_significancia; as pruebas) {
+      <section data-seccion="significancia">
+        <h3>Pruebas de significancia</h3>
+        <ul class="pruebas">
+          <li>
+            <strong>Comparación mensual (t pareada):</strong>
+            el modelo final mejora en
+            <strong>{{ pruebas.t_pareada_mensual.meses_que_mejora }} de
+              {{ pruebas.t_pareada_mensual.n_meses }} meses</strong>
+            ({{ pruebas.t_pareada_mensual.p | valorP }}).
+          </li>
+          <li>
+            <strong>Prueba de Diebold-Mariano</strong> sobre
+            {{ pruebas.diebold_mariano.dias }} días: {{ pruebas.diebold_mariano.p | valorP }}.
+          </li>
+        </ul>
+      </section>
+    }
+
+    <section data-seccion="shap">
+      <h3>Importancia de las variables</h3>
+      @if (barrasShap().length > 0) {
+        <ul class="barras" data-grafico="shap" aria-label="Importancia SHAP por variable">
+          @for (b of barrasShap(); track b.etiqueta) {
+            <li>
+              <span class="barra-etiqueta">{{ b.etiqueta }}</span>
+              <span class="barra-pista">
+                <span class="barra" data-barra-shap [style.width.%]="b.porcentaje"></span>
+              </span>
+              <span class="barra-valor">{{ b.texto }}</span>
+            </li>
+          }
+        </ul>
+        <p class="nota">
+          Valor SHAP medio absoluto: cuánto mueve cada variable, en promedio, la predicción.
+        </p>
+      } @else {
+        <div class="chips">
+          @for (variable of variablesLegibles(); track variable) {
+            <span class="chip">{{ variable }}</span>
+          }
+        </div>
+      }
+    </section>
+
+    @if (barrasCalibracion().length > 0) {
+      <section data-seccion="calibracion-franja">
+        <h3>Calibración por franja horaria</h3>
+        <ul class="barras" data-grafico="calibracion" aria-label="Calibración por franja">
+          @for (b of barrasCalibracion(); track b.etiqueta) {
+            <li>
+              <span class="barra-etiqueta">{{ b.etiqueta }}</span>
+              <span class="barra-pista">
+                <span class="barra barra-calibracion" [style.width.%]="b.porcentaje"></span>
+                <span class="referencia" [style.left.%]="b.referencia" title="Calibración exacta (1.0)"></span>
+              </span>
+              <span class="barra-valor">{{ b.texto }}</span>
+            </li>
+          }
+        </ul>
+        <p class="nota">
+          La línea vertical marca 1.0 (calibración exacta). Más a la derecha, el modelo
+          sobreestima; más a la izquierda, subestima.
+        </p>
+      </section>
+    }
 
     <section>
       <h3>Limitaciones</h3>

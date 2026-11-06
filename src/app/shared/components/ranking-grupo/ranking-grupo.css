@@ -1,13 +1,10 @@
 .grupo {
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 
 .grupo h3 {
-  position: sticky;
-  top: 0;
-  z-index: 1;
   margin: 0;
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-1) var(--space-4);
   background: var(--color-surface);
   font-size: 0.72rem;
   font-weight: 700;
@@ -33,16 +30,20 @@ ul {
 }
 
 li {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--ancho-col-valor, 5rem);
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-2) var(--space-3);
-  margin: 1px 0;
+  padding: 2px var(--space-3);
+  margin: 0;
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 0.88rem;
   transition: background-color 0.12s ease;
+}
+
+li.con-cambio {
+  grid-template-columns: minmax(0, 1fr) var(--ancho-col-valor, 5rem) var(--ancho-col-cambio, 5rem);
 }
 
 li:hover {
@@ -56,17 +57,33 @@ li.seleccionado {
 }
 
 .nombre {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* Sin puntos suspensivos: si no cabe, pasa a una segunda línea. */
+  min-width: 0;
+  overflow-wrap: break-word;
+  line-height: 1.25;
 }
 
-.valor {
-  flex: none;
+.valor,
+.cambio {
+  text-align: right;
   font-variant-numeric: tabular-nums;
   color: var(--color-text-muted);
 }
 
-li.seleccionado .valor {
+li.seleccionado .valor,
+li.seleccionado .cambio {
   color: inherit;
+}
+
+.dato-spearman {
+  margin: 0 var(--space-4) var(--space-1);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+
+.cambio {
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
 }

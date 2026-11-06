@@ -1,0 +1,54 @@
+<div class="barra">
+  <label for="buscar-tabla-distritos">Buscar en la tabla</label>
+  <input
+    id="buscar-tabla-distritos"
+    type="search"
+    data-testid="buscar-tabla"
+    placeholder="Distrito o departamento…"
+    autocomplete="off"
+    [value]="busqueda()"
+    (input)="onBusqueda($event)"
+  />
+  <span class="conteo" data-testid="conteo-tabla">{{ filas().length }} de {{ distritos().length }} distritos</span>
+</div>
+
+<div class="envoltorio">
+  <table data-testid="tabla-distritos">
+    <thead>
+      <tr>
+        <th scope="col" [attr.aria-sort]="ariaOrden('distrito')">
+          <button type="button" data-orden="distrito" (click)="ordenarPor('distrito')">Distrito {{ indicador('distrito') }}</button>
+        </th>
+        <th scope="col" [attr.aria-sort]="ariaOrden('departamento')">
+          <button type="button" data-orden="departamento" (click)="ordenarPor('departamento')">Departamento {{ indicador('departamento') }}</button>
+        </th>
+        <th scope="col" class="num" [attr.aria-sort]="ariaOrden('esperado')">
+          <button type="button" data-orden="esperado" (click)="ordenarPor('esperado')">Esperados {{ indicador('esperado') }}</button>
+        </th>
+        <th scope="col" class="num">Rango del 90%</th>
+        <th scope="col" [attr.aria-sort]="ariaOrden('tercil')">
+          <button type="button" data-orden="tercil" (click)="ordenarPor('tercil')">Riesgo {{ indicador('tercil') }}</button>
+        </th>
+        <th scope="col" class="num" [attr.aria-sort]="ariaOrden('tasa_10mil_hab')">
+          <button type="button" data-orden="tasa_10mil_hab" (click)="ordenarPor('tasa_10mil_hab')">Por 10,000 hab. {{ indicador('tasa_10mil_hab') }}</button>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (d of filas(); track d.codigo) {
+        <tr data-fila-distrito>
+          <th scope="row">{{ d.distrito }}</th>
+          <td>{{ d.departamento }}</td>
+          <td class="num">{{ formatearDecimal(d.esperado, 1) }}</td>
+          <td class="num">{{ formatearConteo(d.ic90_inf) }} a {{ formatearConteo(d.ic90_sup) }}</td>
+          <td><span class="tercil" [attr.data-tercil]="d.tercil">{{ textoTercil[d.tercil] }}</span></td>
+          <td class="num">{{ formatearDecimal(d.tasa_10mil_hab, 2) }}</td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="6" class="vacio" data-sin-resultados>Ningún distrito coincide con la búsqueda.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

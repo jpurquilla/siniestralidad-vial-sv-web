@@ -49,3 +49,40 @@ export interface FiltroSiniestros {
 export type SiniestrosPuntosResultado =
   | { estado: 'ok'; datos: SiniestrosPuntosResponse }
   | { estado: 'demasiados_puntos'; mensaje: string };
+
+/** Hexágono de la grilla de 2 km de lado, con su conteo (agregacion=hex). */
+export interface HexagonoOut {
+  id: string;
+  conteo: number;
+  /** Distritos de los siniestros que caen en el hexágono. */
+  distritos: string[];
+  /** [latitud, longitud] */
+  centro: [number, number];
+  /** 6 vértices [latitud, longitud]. */
+  vertices: [number, number][];
+}
+
+export interface SiniestrosHexResponse {
+  aviso: string;
+  agregacion: 'hex';
+  lado_km: number;
+  total: number;
+  hexagonos: HexagonoOut[];
+}
+
+/** Siniestros de un distrito, con su población y tasa (agregacion=distrito). */
+export interface DistritoAgregadoOut {
+  distrito_codigo: string;
+  nombre: string;
+  departamento: string;
+  siniestros: number;
+  poblacion: number;
+  tasa_por_10mil: number;
+}
+
+export interface SiniestrosDistritoResponse {
+  aviso: string;
+  agregacion: 'distrito';
+  total: number;
+  distritos: DistritoAgregadoOut[];
+}

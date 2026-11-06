@@ -10,7 +10,7 @@
   <p class="error">{{ msg }}</p>
 } @else {
   <p class="meta">
-    Ley vigente desde el <strong>{{ fechaAprobacionLey() }}</strong>
+    Ley vigente desde el <strong>{{ fechaAprobacionLey() | fechaLarga }}</strong>
   </p>
 
   <section>
@@ -22,7 +22,7 @@
             <th>Año</th>
             <th class="num">Siniestros</th>
             <th class="num">Fallecidos</th>
-            <th class="num">Letalidad (por 100)</th>
+            <th class="num">Letalidad</th>
             <th>Cobertura</th>
           </tr>
         </thead>
@@ -30,9 +30,9 @@
           @for (a of serieAnual(); track a.anio) {
             <tr>
               <td>{{ a.anio }}</td>
-              <td class="num">{{ a.siniestros | number: '1.0-0' }}</td>
-              <td class="num">{{ a.fallecidos | number: '1.0-0' }}</td>
-              <td class="num">{{ a.letalidad | number: '1.2-2' }}</td>
+              <td class="num">{{ a.siniestros | conteo }}</td>
+              <td class="num">{{ a.fallecidos | conteo }}</td>
+              <td class="num">{{ a.letalidad | porcentaje }}</td>
               <td>{{ a.cobertura }}</td>
             </tr>
           }
@@ -53,8 +53,10 @@
               [class.negativa]="r.variacion_interanual_pct < 0"
               [class.positiva]="r.variacion_interanual_pct > 0"
             >
-              {{ r.variacion_interanual_pct > 0 ? '+' : '' }}{{ r.variacion_interanual_pct | number: '1.1-1' }}%
+              {{ r.variacion_interanual_pct | porcentaje: { conSigno: true } }}
             </span>
+          } @else {
+            <span class="resumen-variacion sin-dato">sin dato</span>
           }
           <p class="resumen-lectura">{{ r.lectura }}</p>
         </li>
@@ -62,12 +64,40 @@
     </ul>
   </section>
 
-  <section>
-    <h3>Limitaciones</h3>
-    <ul class="limitaciones">
-      @for (limitacion of limitaciones(); track limitacion) {
-        <li>{{ limitacion }}</li>
-      }
-    </ul>
-  </section>
+  @if (tasasPorVehiculo().length > 0) {
+    <section data-seccion="tasas-por-vehiculo">
+      <h3>
+        Tasas por parque vehicular
+        <span class="sello-real" data-dato-real>Dato real</span>
+      </h3>
+      <p class="nota">
+        Tasas calculadas con el parque vehicular registrado cada año. Son datos reales, no
+        sintéticos. El último año está incompleto.
+      </p>
+      <div class="tabla-envoltorio">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Año</th>
+              <th class="num">Siniestros por 1,000 vehículos</th>
+              <th class="num">Fallecidos por 10,000 vehículos</th>
+              <th class="num">Parque vehicular</th>
+              <th>Corte del parque</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (t of tasasPorVehiculo(); track t.anio) {
+              <tr>
+                <td>{{ t.anio }}@if (t.parcial) { (parcial)}</td>
+                <td class="num">{{ t.siniestros_por_1000_vehiculos | decimal2 }}</td>
+                <td class="num">{{ t.fallecidos_por_10000_vehiculos | decimal2 }}</td>
+                <td class="num">{{ t.parque_vehicular | conteo }}</td>
+                <td>{{ t.fecha_corte_parque | fechaLarga }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
 }
