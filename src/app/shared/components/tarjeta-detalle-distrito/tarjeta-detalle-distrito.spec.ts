@@ -29,7 +29,7 @@ describe('TarjetaDetalleDistrito', () => {
     fixture.detectChanges();
 
     expect((fixture.nativeElement as HTMLElement).textContent ?? '').toContain(
-      'Seleccioná un distrito',
+      'Seleccione un distrito',
     );
   });
 
@@ -57,7 +57,7 @@ describe('TarjetaDetalleDistrito', () => {
     expect(texto).toContain('siniestros esperados en la franja seleccionada');
   });
 
-  it('emite cerrar al hacer click en el botón de cerrar', () => {
+  it('emite cerrar al hacer clic en el botón de cerrar', () => {
     const fixture = TestBed.createComponent(TarjetaDetalleDistrito);
     fixture.componentRef.setInput('distrito', distrito);
     fixture.componentRef.setInput('valorEsperado', 4.2);

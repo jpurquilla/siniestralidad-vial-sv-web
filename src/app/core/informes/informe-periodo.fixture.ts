@@ -110,7 +110,7 @@ export function crearInformeFixture(): InformePeriodo {
   colores[OTRAS] = '#e0e0e0';
 
   const texto =
-    `Entre el 2 de noviembre y el 2 de diciembre de 2026 se esperan unos ${entero(total.esperado)} siniestros en los ${N_DISTRITOS} distritos ` +
+    `Entre el 2 de noviembre y el 2 de diciembre de 2026 se esperan unos ${entero(total.esperado)} siniestros en el país ` +
     `(entre ${entero(total.ic90_inf)} y ${entero(total.ic90_sup)} con 90% de probabilidad). ` +
     `La tarde concentra el ${Math.round((franjaMayor.esperado / TOTAL) * 100)}% y los ${diaMayor.dia.toLowerCase().replace('sábado', 'sábados')} son, en promedio, los días de mayor riesgo. ` +
     `${top4.slice(0, 3).map((d) => d.distrito).join(', ')} y ${top4[3].distrito} reúnen el ${pctTop4}% del total. ` +

@@ -91,7 +91,7 @@ describe('PaginaInformePeriodo', () => {
   it('muestra el texto del resumen y la Tabla 1 de 4 filas que vienen de la API', async () => {
     const { el, datos } = await conInforme();
     expect(texto(q(el, '[data-testid="resumen-texto"]'))).toBe(datos.resumen.texto);
-    expect(texto(q(el, '[data-testid="resumen-texto"]'))).toContain('unos 1,982 siniestros en los 103 distritos');
+    expect(texto(q(el, '[data-testid="resumen-texto"]'))).toContain('unos 1,982 siniestros en el país');
     const filas = Array.from(el.querySelectorAll('[data-fila-resumen]'));
     expect(filas.map((f) => texto(f.querySelector('th')!))).toEqual([
       'Total esperado',

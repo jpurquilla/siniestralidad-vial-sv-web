@@ -73,7 +73,7 @@ describe('RankingPanel', () => {
     );
   });
 
-  it('reemite seleccionar con el código del distrito clickeado, sin importar el grupo', () => {
+  it('reemite seleccionar con el código del distrito pulsado, sin importar el grupo', () => {
     const fixture = crear();
     const emitidos: string[] = [];
     fixture.componentInstance.seleccionar.subscribe((v) => emitidos.push(v));

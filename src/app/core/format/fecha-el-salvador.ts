@@ -13,3 +13,13 @@ export function hoyEnElSalvador(ahora: Date = new Date()): string {
     day: '2-digit',
   }).format(ahora);
 }
+
+/**
+ * Primer día del mes que debe abrir el calendario: el mes indicado en la URL
+ * («YYYY-MM» o «YYYY-MM-DD») o, si falta o es inválido, el mes actual en El Salvador.
+ */
+export function mesInicialCalendario(parametro: string | null, hoy: string = hoyEnElSalvador()): Date {
+  const coincidencia = /^(\d{4})-(0[1-9]|1[0-2])(?:-\d{2})?$/.exec(parametro ?? '') ?? /^(\d{4})-(\d{2})/.exec(hoy);
+  const [, anio, mes] = coincidencia as RegExpExecArray;
+  return new Date(Number(anio), Number(mes) - 1, 1);
+}

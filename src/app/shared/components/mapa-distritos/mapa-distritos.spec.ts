@@ -79,7 +79,7 @@ describe('MapaDistritos', () => {
     expect(texto).toContain('Faltan las geometrías');
   });
 
-  it('renderiza los polígonos y emite seleccionar al hacer click en uno', async () => {
+  it('renderiza los polígonos y emite seleccionar al hacer clic en uno', async () => {
     const fixture = crear();
     fixture.componentRef.setInput('geojson', { estado: 'ok', datos: GEOJSON_DE_PRUEBA });
     fixture.detectChanges();

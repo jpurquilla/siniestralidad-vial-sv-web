@@ -22,14 +22,14 @@ describe('App', () => {
     const logo = (fixture.nativeElement as HTMLElement).querySelector('[data-app-logo]') as HTMLImageElement;
     expect(logo.getAttribute('src')).toBe('favicon.svg');
     expect([logo.width, logo.height]).toEqual([32, 32]);
-    expect(logo.nextElementSibling?.querySelector('h1')?.textContent).toContain('Siniestralidad Vial SV');
+    expect(logo.nextElementSibling?.querySelector('h1')?.textContent).toContain('Radar Vial SV');
   });
 
   it('muestra el título y los enlaces de navegación', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Siniestralidad Vial SV');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Radar Vial SV');
     expect(compiled.textContent).toContain('Mapa de riesgo');
     expect(compiled.textContent).toContain('Ley Cero Tolerancia');
   });

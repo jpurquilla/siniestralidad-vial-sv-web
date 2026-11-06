@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { PaginaCalendario } from './pagina-calendario';
@@ -18,6 +18,10 @@ describe('PaginaCalendario', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { queryParamMap: convertToParamMap({ mes: '2026-08' }) } },
+        },
         { provide: API_BASE_URL, useValue: API },
       ],
     });
@@ -93,7 +97,7 @@ describe('PaginaCalendario', () => {
     peticion.flush({ aviso: '', predicciones: [] });
   });
 
-  it('colorea los días con datos y navega al mapa con la fecha al hacer click', () => {
+  it('colorea los días con datos y navega al mapa con la fecha al hacer clic', () => {
     flushDistritosYPredicciones();
     fixture.detectChanges();
 

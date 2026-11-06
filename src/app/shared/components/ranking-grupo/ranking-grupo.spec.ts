@@ -47,7 +47,7 @@ describe('RankingGrupo', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('.advertencia')).toBeNull();
   });
 
-  it('emite seleccionar con el código del distrito al hacer click en una fila', () => {
+  it('emite seleccionar con el código del distrito al hacer clic en una fila', () => {
     const fixture = crear();
     const emitidos: string[] = [];
     fixture.componentInstance.seleccionar.subscribe((v) => emitidos.push(v));

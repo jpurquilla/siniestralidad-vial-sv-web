@@ -1,4 +1,4 @@
-import { hoyEnElSalvador } from './fecha-el-salvador';
+import { hoyEnElSalvador, mesInicialCalendario } from './fecha-el-salvador';
 
 describe('hoyEnElSalvador', () => {
   it('usa la fecha de El Salvador (UTC-6) y no la de UTC', () => {
@@ -12,5 +12,18 @@ describe('hoyEnElSalvador', () => {
 
   it('devuelve el formato YYYY-MM-DD', () => {
     expect(hoyEnElSalvador()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});
+
+describe('mesInicialCalendario', () => {
+  it('usa el mes actual de El Salvador si la URL no indica otro', () => {
+    expect(mesInicialCalendario(null, '2026-11-04')).toEqual(new Date(2026, 10, 1));
+  });
+  it('respeta el mes de la URL (YYYY-MM o YYYY-MM-DD)', () => {
+    expect(mesInicialCalendario('2026-08', '2026-11-04')).toEqual(new Date(2026, 7, 1));
+    expect(mesInicialCalendario('2026-03-15', '2026-11-04')).toEqual(new Date(2026, 2, 1));
+  });
+  it('ignora valores inválidos', () => {
+    expect(mesInicialCalendario('2026-13', '2026-11-04')).toEqual(new Date(2026, 10, 1));
   });
 });

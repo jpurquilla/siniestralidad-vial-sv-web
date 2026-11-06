@@ -15,7 +15,7 @@ function detalleDeValidacion(error: HttpErrorResponse): string | null {
 
 export function mensajeErrorHttp(error: HttpErrorResponse): string {
   if (error.status === 0) {
-    return 'No se pudo conectar con la API. Verificá que esté corriendo y que CORS permita este origen.';
+    return 'No se pudo conectar con la API. Verifique que esté corriendo y que CORS permita este origen.';
   }
 
   if (error.status === 422) {
@@ -26,7 +26,7 @@ export function mensajeErrorHttp(error: HttpErrorResponse): string {
   }
 
   if (error.status >= 500) {
-    return 'La API respondió con un error interno. Probá de nuevo en unos segundos.';
+    return 'La API respondió con un error interno. Intente de nuevo en unos segundos.';
   }
 
   return `La API respondió con un error inesperado (código ${error.status}).`;

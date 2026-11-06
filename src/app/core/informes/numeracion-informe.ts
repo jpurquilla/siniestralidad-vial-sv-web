@@ -15,6 +15,7 @@ export const TEXTO_LLUVIA = 'La lluvia corresponde a la normal climatológica de
 /** Supuestos que antes se repetían como notas bajo los gráficos. */
 export const NOTAS_SUPUESTOS = [
   'Los valores son promedios (esperados), no conteos observados.',
+  'El conjunto de datos asigna todos los siniestros del país a los 103 distritos del estudio.',
   'La composición por causa usa la proporción histórica de cada franja horaria (2022-2024).',
   'En «Esperado por día», cada valor es el promedio de un día de ese tipo dentro del periodo; «Veces» indica cuántos días de ese tipo tiene el periodo.',
 ];

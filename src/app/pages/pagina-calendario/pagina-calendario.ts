@@ -1,11 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, filter, of, switchMap } from 'rxjs';
 
 import { construirGrillaCalendario } from '../../core/calendario/construir-grilla-calendario';
 import { mensajeErrorHttp } from '../../core/errores/mensaje-error-http';
+import { mesInicialCalendario } from '../../core/format/fecha-el-salvador';
 import {
   formatearDecimal,
   formatearFechaLarga,
@@ -43,8 +44,13 @@ export class PaginaCalendario {
   private readonly distritosService = inject(DistritosService);
   private readonly prediccionesService = inject(PrediccionesService);
   private readonly router = inject(Router);
+  private readonly ruta = inject(ActivatedRoute);
 
-  protected readonly mesActual = signal(new Date(2026, 7, 1));
+  protected readonly mesActual = signal(
+    mesInicialCalendario(
+      this.ruta.snapshot.queryParamMap.get('mes') ?? this.ruta.snapshot.queryParamMap.get('fecha'),
+    ),
+  );
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly totalesPorDia = signal<Map<string, number>>(new Map());
